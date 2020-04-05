@@ -1,6 +1,4 @@
 import subprocess
-import pathlib
-import os
 
 import modules.site as site
 import modules.centos as centos
@@ -8,18 +6,16 @@ import modules.db as db
 import modules.forum as forum
 import modules.core as core
 import modules.gate as gate
-
-sep = str(os.path.sep)
-this_path = str(pathlib.Path().absolute()) + sep
-distr_path = this_path + 'distr' + sep
+import modules.nginx as nginx
 
 images = []
-# images.append(centos.New())
-# images.append(db.New())
-# images.append(site.New())
-# images.append(forum.New())
-# images.append(core.New())
+images.append(centos.New())
+images.append(db.New())
+images.append(site.New())
+images.append(forum.New())
+images.append(core.New())
 images.append(gate.New())
+images.append(nginx.New())
 
 print('Building start')
 for image in images:

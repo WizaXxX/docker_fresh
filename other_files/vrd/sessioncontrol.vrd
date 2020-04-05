@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<point xmlns="http://v8.1c.ru/8.2/virtual-resource-system"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                base=""
+                ib="" 
+                enable="false">
+        <ws pointEnableCommon="false">
+            <point name="SessionControl_1_0_1_1"
+				alias="SessionControl_1_0_1_1.1cws"
+				enable="true"/>
+        </ws>
+</point>

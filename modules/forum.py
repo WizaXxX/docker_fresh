@@ -7,9 +7,9 @@ def add_forum_dir(command):
 def delete_forum_dir():
     command = helper.new_docker_command('images/forum/distr')
     command.append('alpine')
-    command.append('rm')
-    command.append('-rf')
-    command.append('/out_files/forum')
+    command.append('sh')
+    command.append('-c')
+    command.append('"rm -rf /out_files/forum"')
 
     return command
 

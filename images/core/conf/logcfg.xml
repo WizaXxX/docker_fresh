@@ -1,9 +1,17 @@
 <config xmlns="http://v8.1c.ru/v8/tech-log">
-    <log location="/var/log/1c" history="1">
+    <dump location="/var/log/1c/dumps" create="1" type="3"/>
+    <log location="/var/log/1c/excp" history="1">
         <event>
             <eq property="name" value="EXCP"/>
         </event>
         <property name="all">
         </property>
+    </log>
+	<system level="Trace" class="OID2Log" />
+    <log location="/var/log/1c/openid" history="1">
+        <event>
+            <eq property="class" value="OID2Log" />
+        </event>
+        <property name="all" />
     </log>
 </config>

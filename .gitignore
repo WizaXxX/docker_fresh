@@ -1,3 +1,6 @@
 __pycache__/
 .DS_Store
 **/.DS_Store
+artifact/
+workdir
+workdir/
