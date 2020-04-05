@@ -4,6 +4,7 @@ import os
 import modules.site as site
 import modules.centos as centos
 import modules.db as db
+import modules.forum as forum
 
 sep = str(os.path.sep)
 this_path = str(pathlib.Path().absolute()) + sep
@@ -13,6 +14,7 @@ images = []
 images.append(centos.New())
 images.append(db.New())
 images.append(site.New())
+images.append(forum.New())
 
 print('Building start')
 for image in images:
