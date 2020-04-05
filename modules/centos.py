@@ -10,7 +10,7 @@ def download_postgresql_connector():
 
     return command
 
-def add_all_commands():
+def add_all_before_commands():
 
     commands = []
     commands.append(download_postgresql_connector())
@@ -20,8 +20,9 @@ def add_all_commands():
 class New():
 
     name = ''
-    commands = []
+    commands_before = []
+    commands_after = []
 
     def __init__(self):
         self.name = 'centos'
-        self.commands = add_all_commands()
+        self.commands_before = add_all_before_commands()

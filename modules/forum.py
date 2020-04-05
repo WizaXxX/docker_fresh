@@ -36,20 +36,26 @@ def rename_forum_file():
 
     return command
 
-def add_all_commands():
-
+def add_all_before_commands():
     commands = []
-    commands.append(delete_forum_dir())
     commands.append(unzip_forum_dir())
     commands.append(rename_forum_file())
+
+    return commands
+
+def add_all_after_commands():
+    commands = []
+    commands.append(delete_forum_dir())
 
     return commands
 
 class New():
 
     name = ''
-    commands = []
+    commands_before = []
+    commands_after = []
 
     def __init__(self):
         self.name = 'forum'
-        self.commands = add_all_commands()
+        self.commands_before = add_all_before_commands()
+        self.commands_after = add_all_after_commands()

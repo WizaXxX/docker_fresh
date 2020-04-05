@@ -2,8 +2,9 @@
 class New():
 
     name = ''
-    commands = []
+    commands_before = []
+    commands_after = []
 
     def __init__(self):
         self.name = 'db'
-        self.commands = []
+        self.commands_before = []

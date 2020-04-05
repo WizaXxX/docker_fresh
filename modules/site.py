@@ -1,11 +1,4 @@
-import subprocess
-import pathlib
-import os
 import modules.helper as helper
-
-def add_site_dir(command):
-    command.append('-v')
-    command.append(helper.this_path + helper.replace_sep('images/site') + ':/main_dir')
 
 def delete_site_dir():
     command = helper.new_docker_command('images/site/distr')
@@ -18,7 +11,8 @@ def delete_site_dir():
 
 def unzip_site_dir():
     command = helper.new_docker_command()
-    add_site_dir(command)
+    command.append('-v')
+    command.append(helper.this_path + helper.replace_sep('images/site') + ':/main_dir')
     command.append('kubeless/unzip')
     command.append('unzip')
     command.append('/out_files/site_*.zip')
@@ -36,20 +30,26 @@ def rename_site_file():
 
     return command
 
-def add_all_commands():
-
+def add_all_before_commands():
     commands = []
-    commands.append(delete_site_dir())
     commands.append(unzip_site_dir())
     commands.append(rename_site_file())
 
     return commands
 
+def add_all_after_commands():
+    commands = []
+    commands.append(delete_site_dir())
+    
+    return commands
+
 class New():
 
     name = ''
-    commands = []
+    commands_before = []
+    commands_after = []
 
     def __init__(self):
         self.name = 'site'
-        self.commands = add_all_commands()
+        self.commands_before = add_all_before_commands()
+        self.commands_after = add_all_after_commands()
