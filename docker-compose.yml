@@ -1,0 +1,130 @@
+version: '3.6'
+
+services:
+
+  db:
+    image: registry.1c709.ru/docker/postgres-pro
+    hostname: db.ikoz.1c709.ru
+    container_name: db.ikoz.1c709.ru
+    volumes:
+      - ./artifact/db/data:/var/lib/1c/pgdata
+
+  srv:
+    image: registry.1c709.ru/docker/core:8.3.14.1993
+    hostname: srv.ikoz.1c709.ru
+    container_name: srv.ikoz.1c709.ru
+    command: srv+cli
+    volumes:
+      - ./artifact/srv/data:/var/lib/1c/data
+      - ./artifact/srv/log:/var/log/1c
+      - ./artifact/mnt:/mnt
+      #- ./conf/nethasp.ini:/opt/1C/v8.3/x86_64/conf/nethasp.ini
+      - ./conf/logcfg.xml:/opt/1C/v8.3/x86_64/conf/logcfg.xml
+      - /tmp/.aksusb:/tmp/.aksusb
+    ports:
+      - 1540-1541:1540-1541
+      - 1538:1538
+      - 1550:1550
+      - 1560-1591:1560-1591
+      - 5900:5900
+    depends_on:
+      - db
+
+  ras:
+    image: registry.1c709.ru/docker/core:8.3.14.1993
+    hostname: ras.ikoz.1c709.ru
+    container_name: ras.ikoz.1c709.ru
+    command: /opt/1C/v8.3/x86_64/ras cluster --port=1545 srv:1540
+    volumes:
+      - ./artifact/ras/log:/var/log/1c
+      - ./conf/logcfg.xml:/opt/1C/v8.3/x86_64/conf/logcfg.xml
+    ports:
+      - 1545:1545
+      
+  web:
+    image: registry.1c709.ru/docker/core:8.3.14.1993
+    hostname: web.ikoz.1c709.ru
+    container_name: web.ikoz.1c709.ru
+    command: web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.routers.web.rule=Host(`ikoz.1c709.ru`) && PathPrefix(`/a/adm`, `/a/openid`)"
+      #- "traefik.http.middlewares.web-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.web.middlewares=https-redirect"
+      - "traefik.http.routers.web-secure.entrypoints=websecure"
+      - "traefik.http.routers.web-secure.rule=Host(`ikoz.1c709.ru`) && PathPrefix(`/a/adm`, `/a/openid`)"
+      - "traefik.http.routers.web-secure.tls=true"
+      - "traefik.http.routers.web-secure.tls.certresolver=myresolver"
+      - "traefik.http.routers.web-secure.service=web"
+      - "traefik.http.services.web.loadbalancer.server.port=80"
+    volumes:
+      - ./artifact/web/log:/var/log/1c
+      - ./artifact/mnt:/mnt
+    depends_on:
+      - srv
+  
+  site:
+    image: registry.1c709.ru/docker/site
+    hostname: site.ikoz.1c709.ru
+    container_name: site.ikoz.1c709.ru
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.site.entrypoints=web"
+      - "traefik.http.routers.site.rule=Host(`ikoz.1c709.ru`)"
+      #- "traefik.http.middlewares.site-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.site.middlewares=https-redirect"
+      - "traefik.http.routers.site-secure.entrypoints=websecure"
+      - "traefik.http.routers.site-secure.rule=Host(`ikoz.1c709.ru`)"
+      - "traefik.http.routers.site-secure.tls=true"
+      - "traefik.http.routers.site-secure.tls.certresolver=myresolver"
+      - "traefik.http.routers.site-secure.service=site"
+      - "traefik.http.services.site.loadbalancer.server.port=8080"
+    volumes:
+      - ./artifact/site/searchIndex:/var/www/content/searchIndex
+      - ./artifact/site/site_files:/var/www/content/site_files
+      - ./artifact/mnt/media:/var/www/content/media/
+    depends_on:
+      - db
+
+  forum:
+    image: registry.1c709.ru/docker/forum
+    hostname: forum.ikoz.1c709.ru
+    container_name: forum.ikoz.1c709.ru
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.forum.entrypoints=web"
+      - "traefik.http.routers.forum.rule=Host(`ikoz.1c709.ru`) && PathPrefix(`/forum`)"
+      - "traefik.http.routers.forum.middlewares=https-redirect"
+      - "traefik.http.routers.forum-secure.entrypoints=websecure"
+      - "traefik.http.routers.forum-secure.rule=Host(`ikoz.1c709.ru`) && PathPrefix(`/forum`)"
+      - "traefik.http.routers.forum-secure.tls=true"
+      - "traefik.http.routers.forum-secure.tls.certresolver=myresolver"
+      - "traefik.http.routers.forum-secure.service=forum"
+      - "traefik.http.services.forum.loadbalancer.server.port=8080"
+      #- "traefik.http.middlewares.forum-replacepath.stripprefix.prefixes=/forum"
+      #- "traefik.http.middlewares.forum-replacepath.replacepath.path=/forum"
+      - "traefik.http.routers.forum-secure.middlewares=forum-replacepath"
+    volumes:
+      - ./artifact/forum:/var/www/forum/mess_files
+    depends_on:
+      - db
+
+  gate:
+    image: registry.1c709.ru/docker/gate
+    hostname: gate.ikoz.1c709.ru
+    container_name: gate.ikoz.1c709.ru
+    depends_on:
+      - srv
+
+  #agent:
+   #image: registry.1c709.ru/docker/core:8.3.14.1993
+   #hostname: agent.ikoz.1c709.ru
+   #container_name: agent.ikoz.1c709.ru
+   #command: agent
+   #volumes:
+    #- ./artifact/agent:/var/lib/1c/agent_data
+   #environment:
+    #- INFOBASECONNECTIONSTRING="Srvr=srv.ikoz.1c709.ru;Ref=sm"
+   #ports:
+    #  - 1543:1543
