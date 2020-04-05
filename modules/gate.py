@@ -25,7 +25,7 @@ def add_all_before_commands():
 
 def add_all_after_commands():
     commands = []
-    
+    commands.append(delete_distrib_file())
     
     return commands
 

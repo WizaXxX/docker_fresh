@@ -1,4 +1,4 @@
-
+import modules.helper as helper
 class New():
 
     name = ''

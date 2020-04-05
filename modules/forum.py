@@ -1,6 +1,3 @@
-import subprocess
-import pathlib
-import os
 import modules.helper as helper
 
 def add_forum_dir(command):
