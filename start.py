@@ -1,8 +1,11 @@
 import subprocess
 import os
 import modules.helper as helper
+import sys
+from datetime import datetime
 
 host_name = 'test.1cfresh.dev'
+sup_password = '123Qwer'
 configurations = {}
 
 
@@ -30,20 +33,33 @@ def get_configurations_data():
             conf_key = file.split('.')[0].split('_')[0]
             configurations[conf_key] = '.'.join(file.split('.')[0].split('_')).replace(conf_key + '.', '')
 
-new_server = False
+def prepare_new_ib(key):
+    print('creating', key)
+    start_time = datetime.now()
+    call(' '.join(helper.create_ib_command(host_name, key, configurations[key])), remote=False)
+    print(key, 'creation', 'is fihish')
+    print('duration:', datetime.now() - start_time)
 
-new_server = os.path.isfile('workdir') != True
+    print('install control extension')
+    #TODO
 
-# if new_server:
-    # call('mkdir ' + work_dir)
-    # call('mkdir ' + work_dir + 'mnt')
-    # call('sh -c "cp /out_files/distr/*.cf ' + work_dir + 'mnt/"')
-    # get_configurations_data()
+
+new_server = True
+
+if len(sys.argv) > 1:
+    new_server = sys.argv[1] == 'new'
+
+call(docker_compose_str + 'down', False)
+
+if new_server:
+    call('rm -rf /out_files/workdir')
+    call('mkdir -p ' + work_dir + 'mnt')
+    call('sh -c "cp /out_files/distr/*.cf ' + work_dir + 'mnt/"')
+    get_configurations_data()
 
 # renew docker-compose.yml
 call('cp /out_files/docker-compose.yml /out_files/workdir/docker-compose.yml')
 call('sh -c "sed -i \'s/HOSTNAMEREPLACE/' + host_name + '/\' ' + work_dir + '/*.yml"')
-call(docker_compose_str + 'down', False)
 
 # renew all nginx conf files
 call('rm -rf ' + work_dir + 'nginx_conf/')
@@ -57,6 +73,28 @@ call('sh -c "sed -i \'s/HOSTNAMEREPLACE/' + host_name + '/\' ' + work_dir_other 
 
 # start db srv ras web gate
 call(docker_compose_str + 'up -d db srv ras web gate', remote=False)
+
+# publish a services
+call(' '.join(helper.web_publish_command(host_name, 'adm', False, 'zoneless', 'sm')), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'smtl', False, 'withzone')), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'sa', False, 'zoneless')), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'openid', False, 'openid', 'sm')), remote=False)
+
+# publish int services
+call(' '.join(helper.web_publish_command(host_name, 'sm', True, 'zoneless')), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'smtl', True, 'zoneless')), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'sa', True, 'zoneless')), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'am', True, 'zoneless')), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'sc', True, 'sessioncontrol', 'sm;Usr=SessionControl;Pwd=' + sup_password)), remote=False)
+call(' '.join(helper.web_publish_command(host_name, 'extreg', True, 'extreg', 'sm;Usr=ExtReg;Pwd=' + sup_password)), remote=False)
+
+# restart Apache
+call('docker exec web.' + host_name + ' chown -R usr1cv8:grp1cv8 /var/www', remote=False)
+call('docker exec web.' + host_name + ' httpd -k graceful', remote=False)
+
+if new_server:
+    prepare_new_ib('smtl')
+    
 
 
 
