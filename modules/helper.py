@@ -27,9 +27,9 @@ def new_docker_command(extra_path=None):
 def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''):
     
     if internal:
-        prefix = 'a'
-    else:
         prefix = 'int'
+    else:
+        prefix = 'a'
 
     command = []
     command.append('docker')
@@ -40,7 +40,7 @@ def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''
     command.append('-wsdir')
     command.append(prefix + '/' + conf_name)
     command.append('-dir')
-    command.append('/var/www/' + conf_name)
+    command.append('/var/www/' + prefix + '/' + conf_name)
     command.append('-connstr')
 
     if base_name != '':
@@ -69,3 +69,68 @@ def create_ib_command(host_name, ib_name, conf_ver=''):
     command.append('/DumpResult "/mnt/create_ib_' + ib_name + '.result"')
 
     return command
+
+def install_control_ext_command(host_name, ib_name):
+    command = []
+    command.append('docker')
+    command.append('exec')
+    command.append('-t')
+    command.append('srv.' + host_name)
+    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('DESIGNER')
+    command.append('/S')
+    command.append('"srv\\{}"'.format(ib_name))
+    command.append('/LoadCfg')
+    command.append('"/mnt/other-file/cfe/api_1cfresh.cfe"')
+    command.append('-Extension')
+    command.append('"api_1cfresh"')
+    command.append('/UpdateDBCfg')
+    command.append('/Out "/mnt/install_control_ext_' + ib_name + '.out"')
+    command.append('/DumpResult "/mnt/install_control_ext_' + ib_name + '.result"')
+
+    return command
+
+def install_ext_command(host_name, ib_name):
+    command = []
+    command.append('docker')
+    command.append('exec')
+    command.append('-t')
+    command.append('srv.' + host_name)
+    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('DESIGNER')
+    command.append('/S')
+    command.append('"srv\\{}"'.format(ib_name))
+    command.append('/LoadCfg')
+    command.append('"/mnt/{}"'.format(ib_name))
+    command.append('-Extension')
+    command.append('"fresh"')
+    command.append('/UpdateDBCfg')
+    command.append('/Out "/mnt/install_ext_' + ib_name + '.out"')
+    command.append('/DumpResult "/mnt/install_ext_' + ib_name + '.result"')
+
+    return command
+
+def disable_safe_mode(host_name, ib_name):
+    command = []
+    command.append('docker')
+    command.append('exec')
+    command.append('-t')
+    command.append('srv.' + host_name)
+    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('ENTERPRICE')
+    command.append('/S')
+    command.append('"srv\\{}"'.format(ib_name))
+    command.append('/Execute')
+    command.append('"/mnt/other-files/cfe/disable.epf"')
+    command.append('/Out "/mnt/disable_safe_mode_' + ib_name + '.out"')
+    command.append('/DumpResult "/mnt/disable_safe_mode_' + ib_name + '.result"')
+
+    return command
+
+def get_host_name(argv):
+
+    if '-h' not in argv:
+        print('parameter -р not specified')
+        exit(1)
+    host_index = argv.index('-h')
+    return argv[host_index + 1]

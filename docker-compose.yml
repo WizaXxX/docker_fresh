@@ -55,6 +55,7 @@ services:
       - ./artifact/srv/log:/var/log/1c
       - ./mnt:/mnt
       - /tmp/.aksusb:/tmp/.aksusb
+      - ../licenses_1c:/var/1C/licenses
       - ../images/core/conf/logcfg.xml:/opt/1C/v8.3/x86_64/conf/logcfg.xml
       
     ports:

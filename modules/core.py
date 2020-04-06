@@ -35,9 +35,17 @@ def delete_core_distr_files():
 
     return command
 
+def delete_license_tools_files():
+    command = helper.new_docker_command('images/core/distr/')
+    command.append('alpine')
+    command.append('sh -c "rm -rf /out_files/license-tools"')
+
+    return command
+
 def add_all_after_commands():
     commands = []
     commands.append(delete_core_distr_files())
+    commands.append(delete_license_tools_files())
 
     return commands
 
