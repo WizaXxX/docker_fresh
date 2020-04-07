@@ -13,4 +13,3 @@ tar -xvf client_$DISTR_FILE_VERSION.rpm64.tar.gz $client_file_name -C /main_dir/
 tar -xvf rpm64_$DISTR_FILE_VERSION.tar.gz $common_file_name $server_file_name $ws_file_name -C /main_dir/distr
 
 tar -xvf rpm64_$DISTR_FILE_VERSION.tar.gz "license-tools" -C /main_dir/distr/
-
