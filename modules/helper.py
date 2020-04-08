@@ -40,17 +40,17 @@ def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''
     command.append('-wsdir')
     command.append(prefix + '/' + conf_name)
     command.append('-dir')
-    command.append('/var/www/' + prefix + '/' + conf_name)
+    command.append('/var/www/{}/{}'.format(prefix, conf_name))
     command.append('-connstr')
 
     if base_name != '':
-        command.append('\'Srvr=srv;Ref=' + base_name + ';\'')
+        command.append('\'Srvr=srv;Ref={};\''.format(base_name))
     else:
-        command.append('\'Srvr=srv;Ref=' + conf_name + ';\'')
+        command.append('\'Srvr=srv;Ref={};\''.format(conf_name))
     command.append('-confpath')
     command.append('\'/etc/httpd/conf/httpd.conf\'')
     command.append('-descriptor')
-    command.append('\'/mnt/other-files/vrd/' + descriptor + '.vrd\'')
+    command.append('\'/mnt/other-files/vrd/{}.vrd\''.format(descriptor))
     
     return command
 
@@ -62,7 +62,8 @@ def create_ib_command(host_name, ib_name, conf_ver=''):
     command.append('srv.' + host_name)
     command.append('/opt/1C/v8.3/x86_64/1cv8')
     command.append('CREATEINFOBASE')
-    command.append('\'Srvr="srv";Ref="' + ib_name + '";DBMS=PostgreSQL;DBSrvr="db";DB="' + ib_name + '";DBUID="postgres";LicDstr="Y";Locale="ru_RU";CrSQLDB="Y";SchJobDn="N";\'')
+    command.append('\'Srvr="srv";Ref="{0}";DBMS=PostgreSQL;DBSrvr="db";DB="{0}";DBUID="postgres";LicDstr="Y";Locale="ru_RU";CrSQLDB="Y";SchJobDn="N";\''.format(
+        ib_name))
     command.append('/UseTemplate')
     command.append('/mnt/' + ib_name + '_' + conf_ver.replace('.', '_') + '.cf')
     command.append('/Out "/mnt/create_ib_' + ib_name + '.out"')
@@ -81,12 +82,12 @@ def install_control_ext_command(host_name, ib_name):
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/LoadCfg')
-    command.append('"/mnt/other-file/cfe/api_1cfresh.cfe"')
+    command.append('"/mnt/other-files/cfe/api_1cfresh.cfe"')
     command.append('-Extension')
     command.append('"api_1cfresh"')
     command.append('/UpdateDBCfg')
-    command.append('/Out "/mnt/install_control_ext_' + ib_name + '.out"')
-    command.append('/DumpResult "/mnt/install_control_ext_' + ib_name + '.result"')
+    command.append('/Out "/mnt/install_control_ext_{}.out"'.format(ib_name))
+    command.append('/DumpResult "/mnt/install_control_ext_{}.result"'.format(ib_name))
 
     return command
 
@@ -105,8 +106,8 @@ def install_ext_command(host_name, ib_name):
     command.append('-Extension')
     command.append('"fresh"')
     command.append('/UpdateDBCfg')
-    command.append('/Out "/mnt/install_ext_' + ib_name + '.out"')
-    command.append('/DumpResult "/mnt/install_ext_' + ib_name + '.result"')
+    command.append('/Out "/mnt/install_ext_{}.out"'.format(ib_name))
+    command.append('/DumpResult "/mnt/install_ext_{}.result"'.format(ib_name))
 
     return command
 
@@ -122,8 +123,8 @@ def disable_safe_mode(host_name, ib_name):
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/Execute')
     command.append('"/mnt/other-files/cfe/disable.epf"')
-    command.append('/Out "/mnt/disable_safe_mode_' + ib_name + '.out"')
-    command.append('/DumpResult "/mnt/disable_safe_mode_' + ib_name + '.result"')
+    command.append('/Out "/mnt/disable_safe_mode_{}.out"'.format(ib_name))
+    command.append('/DumpResult "/mnt/disable_safe_mode_{}.result"'.format(ib_name))
 
     return command
 

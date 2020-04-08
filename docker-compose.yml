@@ -7,7 +7,7 @@ services:
     hostname: db.HOSTNAMEREPLACE
     container_name: db.HOSTNAMEREPLACE
     volumes:
-      - ./artifact/db/data:/var/lib/1c/pgdata
+      - ./artifacts/db/data:/var/lib/1c/pgdata
       - ./mnt:/mnt
   
   nginx:
@@ -27,16 +27,16 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./nginx_conf/1c_app.conf:/etc/nginx/1c_app.conf
-      - ./nginx_conf/1c_common.conf:/etc/nginx/1c_common.conf
-      - ./nginx_conf/1c_error.conf:/etc/nginx/1c_error.conf
-      - ./nginx_conf/1c_error_openid.conf:/etc/nginx/1c_error_openid.conf
-      - ./nginx_conf/1c_error_site.conf:/etc/nginx/1c_error_site.conf
-      - ./nginx_conf/1c_keepalive.conf:/etc/nginx/1c_keepalive.conf
-      - ./nginx_conf/1c_upstream.conf:/etc/nginx/1c_upstream.conf
-      - ./nginx_conf/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx_conf/conf.d/local-ssl.conf:/etc/nginx/conf.d/local-ssl.conf
-      - ./nginx_conf/conf.d/local.conf://etc/nginx/conf.d/local.conf
+      - ./artifacts/nginx/conf/1c_app.conf:/etc/nginx/1c_app.conf
+      - ./artifacts/nginx/conf/1c_common.conf:/etc/nginx/1c_common.conf
+      - ./artifacts/nginx/conf/1c_error.conf:/etc/nginx/1c_error.conf
+      - ./artifacts/nginx/conf/1c_error_openid.conf:/etc/nginx/1c_error_openid.conf
+      - ./artifacts/nginx/conf/1c_error_site.conf:/etc/nginx/1c_error_site.conf
+      - ./artifacts/nginx/conf/1c_keepalive.conf:/etc/nginx/1c_keepalive.conf
+      - ./artifacts/nginx/conf/1c_upstream.conf:/etc/nginx/1c_upstream.conf
+      - ./artifacts/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./artifacts/nginx/conf/conf.d/local-ssl.conf:/etc/nginx/conf.d/local-ssl.conf
+      - ./artifacts/nginx/conf/conf.d/local.conf://etc/nginx/conf.d/local.conf
       - ./mnt:/mnt
       - ../certs/fullchain.pem:/etc/pki-custom/fullchain.crt
       - ../certs/privkey.pem:/etc/pki-custom/privkey.key
@@ -51,12 +51,12 @@ services:
     container_name: srv.HOSTNAMEREPLACE
     command: srv+cli
     volumes:
-      - ./artifact/srv/data:/var/lib/1c/data
-      - ./artifact/srv/log:/var/log/1c
+      - ./artifacts/srv/data:/var/lib/1c/data
+      - ./artifacts/srv/log:/var/log/1c
       - ./mnt:/mnt
       - /tmp/.aksusb:/tmp/.aksusb
       - ../licenses_1c:/var/1C/licenses
-      - ../images/core/conf/logcfg.xml:/opt/1C/v8.3/x86_64/conf/logcfg.xml
+      - ../conf/core:/opt/1C/v8.3/x86_64/conf
       
     ports:
       - 1540-1541:1540-1541
@@ -73,7 +73,7 @@ services:
     container_name: ras.HOSTNAMEREPLACE
     command: /opt/1C/v8.3/x86_64/ras cluster --port=1545 srv:1540
     volumes:
-      - ./artifact/ras/log:/var/log/1c
+      - ./artifacts/ras/log:/var/log/1c
       - ./mnt:/mnt
       - ../images/core/conf/logcfg.xml:/opt/1C/v8.3/x86_64/conf/logcfg.xml
     ports:
@@ -85,7 +85,9 @@ services:
     container_name: web.HOSTNAMEREPLACE
     command: web
     volumes:
-      - ./artifact/web/log:/var/log/1c
+      - ./artifacts/web/log:/var/log/1c
+      - ./artifacts/web/www/a/:/var/www/a/
+      - ./artifacts/web/www/int/:/var/www/int/
       - ./mnt:/mnt
     depends_on:
       - srv
@@ -95,12 +97,12 @@ services:
     hostname: site.HOSTNAMEREPLACE
     container_name: site.HOSTNAMEREPLACE
     volumes:
-      - ./artifact/site/searchIndex:/var/www/content/searchIndex
-      - ./artifact/site/site_files:/var/www/content/site_files
+      - ./artifacts/site/searchIndex:/var/www/content/searchIndex
+      - ./artifacts/site/site_files:/var/www/content/site_files
       - ./mnt:/mnt
       - ../distr/postgresql.jar:/usr/local/tomcat/lib/postgresql.jdbc4.jar
-      - ../images/site/conf/context.xml:/usr/local/tomcat/conf/context.xml
-      - ../images/site/conf/server.xml:/usr/local/tomcat/conf/server.xml
+      - ../conf/site/context.xml:/usr/local/tomcat/conf/context.xml
+      - ../conf/site/server.xml:/usr/local/tomcat/conf/server.xml
       - ../images/site/distr/site/media:/var/www/content/media/
     depends_on:
       - db
@@ -110,11 +112,11 @@ services:
     hostname: forum.HOSTNAMEREPLACE
     container_name: forum.HOSTNAMEREPLACE
     volumes:
-      - ./artifact/forum:/var/www/forum/mess_files
+      - ./artifacts/forum:/var/www/forum/mess_files
       - ./mnt:/mnt
       - ../distr/postgresql.jar:/usr/local/tomcat/lib/postgresql.jdbc4.jar
-      - ../images/forum/conf/context.xml:/usr/local/tomcat/conf/context.xml
-      - ../images/forum/conf/server.xml:/usr/local/tomcat/conf/server.xml
+      - ../conf/forum/context.xml:/usr/local/tomcat/conf/context.xml
+      - ../conf/forum/server.xml:/usr/local/tomcat/conf/server.xml
     depends_on:
       - db
 

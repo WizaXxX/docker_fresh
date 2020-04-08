@@ -17,9 +17,6 @@ RUN yum -y localinstall /tmp/core/*.rpm; \
     chmod +x /usr/bin/deployka; \
     chmod +x /tmp/license-tools/1ce-installer-cli; /tmp/license-tools/1ce-installer-cli install
 
-ADD ./conf/conf.cfg /opt/1C/v8.3/x86_64/conf/
-ADD ./conf/logcfg.xml /opt/1C/v8.3/x86_64/conf/
-
 ENV COREDATA /var/lib/1c/data
 ENV CORELOGS /var/log/1c
 ENV AGENTBASEDIR /var/lib/1c/agent_data
