@@ -6,7 +6,6 @@ def delete_site_dir():
     command.append('rm')
     command.append('-rf')
     command.append('/out_files/site')
-
     return command
 
 def unzip_site_dir():
@@ -17,8 +16,7 @@ def unzip_site_dir():
     command.append('unzip')
     command.append('/out_files/site_*.zip')
     command.append('-d')
-    command.append('/main_dir/distr/site')
-    
+    command.append('/main_dir/distr/site') 
     return command
 
 def rename_site_file():
@@ -27,20 +25,17 @@ def rename_site_file():
     command.append('sh')
     command.append('-c')
     command.append('"mv /out_files/site/site*.war /out_files/site/ROOT.war"')
-
     return command
 
 def add_all_before_commands():
     commands = []
     commands.append(unzip_site_dir())
     commands.append(rename_site_file())
-
     return commands
 
 def add_all_after_commands():
     commands = []
     commands.append(delete_site_dir())
-    
     return commands
 
 class New():

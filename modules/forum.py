@@ -10,7 +10,6 @@ def delete_forum_dir():
     command.append('sh')
     command.append('-c')
     command.append('"rm -rf /out_files/forum"')
-
     return command
 
 def unzip_forum_dir():
@@ -21,7 +20,6 @@ def unzip_forum_dir():
     command.append('/out_files/forum_*.zip')
     command.append('-d')
     command.append('/main_dir/distr/forum')
-    
     return command
 
 def rename_forum_file():
@@ -30,20 +28,17 @@ def rename_forum_file():
     command.append('sh')
     command.append('-c')
     command.append('"mv /out_files/forum/forum*.war /out_files/forum/ROOT.war"')
-
     return command
 
 def add_all_before_commands():
     commands = []
     commands.append(unzip_forum_dir())
     commands.append(rename_forum_file())
-
     return commands
 
 def add_all_after_commands():
     commands = []
     commands.append(delete_forum_dir())
-
     return commands
 
 class New():

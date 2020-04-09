@@ -9,9 +9,11 @@ services:
     volumes:
       - ./artifacts/db/data:/var/lib/1c/pgdata
       - ./mnt:/mnt
+      - ../images/site/create_db.psql:/create_db_site.psql
+      - ../images/forum/create_db.psql:/create_db_forum.psql
   
   nginx:
-    image: fresh/nginx
+    image: nginx:stable-alpine
     hostname: nginx.HOSTNAMEREPLACE
     container_name: nginx.HOSTNAMEREPLACE
     networks: 
@@ -37,6 +39,7 @@ services:
       - ./artifacts/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
       - ./artifacts/nginx/conf/conf.d/local-ssl.conf:/etc/nginx/conf.d/local-ssl.conf
       - ./artifacts/nginx/conf/conf.d/local.conf://etc/nginx/conf.d/local.conf
+      - ./artifacts/nginx/log:/var/log/nginx
       - ./mnt:/mnt
       - ../certs/fullchain.pem:/etc/pki-custom/fullchain.crt
       - ../certs/privkey.pem:/etc/pki-custom/privkey.key

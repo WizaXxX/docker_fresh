@@ -51,7 +51,6 @@ def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''
     command.append('\'/etc/httpd/conf/httpd.conf\'')
     command.append('-descriptor')
     command.append('\'/mnt/other-files/vrd/{}.vrd\''.format(descriptor))
-    
     return command
 
 def create_ib_command(host_name, ib_name, conf_ver=''):
@@ -68,7 +67,6 @@ def create_ib_command(host_name, ib_name, conf_ver=''):
     command.append('/mnt/' + ib_name + '_' + conf_ver.replace('.', '_') + '.cf')
     command.append('/Out "/mnt/create_ib_' + ib_name + '.out"')
     command.append('/DumpResult "/mnt/create_ib_' + ib_name + '.result"')
-
     return command
 
 def install_control_ext_command(host_name, ib_name):
@@ -88,7 +86,25 @@ def install_control_ext_command(host_name, ib_name):
     command.append('/UpdateDBCfg')
     command.append('/Out "/mnt/install_control_ext_{}.out"'.format(ib_name))
     command.append('/DumpResult "/mnt/install_control_ext_{}.result"'.format(ib_name))
+    return command
 
+def install_sm_ext_command(host_name, ib_name):
+    command = []
+    command.append('docker')
+    command.append('exec')
+    command.append('-t')
+    command.append('srv.' + host_name)
+    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('DESIGNER')
+    command.append('/S')
+    command.append('"srv\\{}"'.format(ib_name))
+    command.append('/LoadCfg')
+    command.append('"/mnt/other-files/cfe/УправлениеМС.cfe"')
+    command.append('-Extension')
+    command.append('"УправлениеМС"')
+    command.append('/UpdateDBCfg')
+    command.append('/Out "/mnt/install_sm_ext_{}.out"'.format(ib_name))
+    command.append('/DumpResult "/mnt/install_sm_ext_{}.result"'.format(ib_name))
     return command
 
 def install_ext_command(host_name, ib_name):
@@ -108,7 +124,6 @@ def install_ext_command(host_name, ib_name):
     command.append('/UpdateDBCfg')
     command.append('/Out "/mnt/install_ext_{}.out"'.format(ib_name))
     command.append('/DumpResult "/mnt/install_ext_{}.result"'.format(ib_name))
-
     return command
 
 def disable_safe_mode(host_name, ib_name):
@@ -125,7 +140,93 @@ def disable_safe_mode(host_name, ib_name):
     command.append('"/mnt/other-files/cfe/disable.epf"')
     command.append('/Out "/mnt/disable_safe_mode_{}.out"'.format(ib_name))
     command.append('/DumpResult "/mnt/disable_safe_mode_{}.result"'.format(ib_name))
+    return command
 
+def delete_control_extension(ib_name, host_name, user):
+    command = []
+    command.append('docker')
+    command.append('exec')
+    command.append('-t')
+    command.append('web.{}'.format(host_name))
+    command.append('curl')
+    if user != None: command.append('--user {}:'.format(user))
+    command.append('-X POST')
+    command.append('http://localhost/int/{}/hs/api.1cfresh/delete'.format(ib_name)) 
+    return command
+
+def edit_site_settings(host_name, sup_pass):
+    command = []
+    command.append('docker exec -t web.{}'.format(host_name))
+    command.append("curl")
+    command.append('-F propertiesMap[\'site.url\']=https://{}'.format(host_name))
+    command.append('-F propertiesMap[\'site.locale\']=ru')
+    command.append('-F propertiesMap[\'site.media_directory\']=/var/www/content/site_files/')
+    command.append('-F propertiesMap[\'search.indexDir\']=/var/www/content/searchIndex/')
+    command.append('-F propertiesMap[\'ws.endpoint\']=http://web/int/sm/ws/Subscriber')
+    command.append('-F propertiesMap[\'ws.endpoint.rest\']=""')
+    command.append('-F propertiesMap[\'ws.endpoint.rest.timeout\']=5000')
+    command.append('-F propertiesMap[\'ws.publicUserName\']=Anonymous')
+    command.append('-F propertiesMap[\'ws.publicUserPassword\']=')
+    command.append('-F propertiesMap[\'ws.protectUserName\']=ProtectedUser')
+    command.append('-F propertiesMap[\'ws.protectUserPassword\']=')
+    command.append('-F propertiesMap[\'ws.am.endpoint\']=http://web/int/am/ws/Availability')
+    command.append('-F propertiesMap[\'ws.am.username\']=Reader')
+    command.append('-F propertiesMap[\'ws.am.password\']=' + sup_pass)
+    command.append('-F propertiesMap[\'openid.oipEndpointUrl\']=https://{}/a/openid/e1cib/oid2op'.format(host_name))
+    command.append('-F propertiesMap[\'viewsProperties.forumUrl\']=https://1cfresh.sample/forum/')
+    command.append('-F propertiesMap[\'viewsProperties.adminApplicationUrl\']=https://{}/a/adm/'.format(host_name))
+    command.append('-F propertiesMap[\'viewsProperties.mailto\']=info@1cfresh.sample')
+    command.append('-F propertiesMap[\'viewsProperties.supportMailto\']=support@1cfresh.sample')
+    command.append('-F propertiesMap[\'open.registration.ws.endpoint\']=http://web/int/sm/ws/ExternalRegistration_1_0_0_1')
+    command.append('-F propertiesMap[\'open.registration.user\']=ExternalRegistration')
+    command.append('-F propertiesMap[\'open.registration.password\']=' + sup_pass)
+    command.append('-F propertiesMap[\'open.registration.siteId\']=1')
+    command.append('-F propertiesMap[\'open.registration.sourceId\']=1')
+    command.append('-F submit=')
+    command.append('https://{}/settings/edit_settings'.format(host_name))
+    return command
+
+def enable_manual_registration(host_name):
+    command = []
+    command.append('docker exec -t web.{}'.format(host_name))
+    command.append('curl')
+    command.append('-F id=25')
+    command.append('-F key=ManualRegistration')
+    command.append('-F description="Включение регистрации на сайте без выбора партнера (код приглашения высылается автоматически)"')
+    command.append('-F enabled=true')
+    command.append('-F _enabled=on')
+    command.append('https://{}/admin/features/25/edit'.format(host_name))
+    return command
+
+def enable_openid(host_name):
+    command = []
+    command.append('docker exec -t web.{}'.format(host_name))
+    command.append('curl')
+    command.append('-F id=2')
+    command.append('-F key=openid')
+    command.append('-F description="Включение работы OpenID на сайте"')
+    command.append('-F enabled=true')
+    command.append('-F _enabled=on')
+    command.append('https://{}/admin/features/2/edit'.format(host_name))
+    return command
+
+def add_solution(host_name, brief_desc, full_desc, display_order, id, possibilities, title):
+    command = []
+    command.append('docker exec -t web.{}'.format(host_name))
+    command.append('curl')  
+    command.append('-F _enableDemo=on') 
+    command.append('-F _showVideo=on') 
+    command.append('-F _userVisible=on') 
+    command.append('-F briefDescription={}'.format(brief_desc)) 
+    command.append('-F displayOrder={}'.format(display_order)) 
+    command.append('-F fullDescription={}'.format(full_desc)) 
+    command.append('-F id={}'.format(id)) 
+    command.append('-F possibilities={}'.format(possibilities))
+    command.append('-F screenshotCount=0')
+    command.append('-F title={}'.format(title))
+    command.append('-F userVisible=true')
+    command.append('-F videosPageTitle={}'.format(possibilities))
+    command.append('https://{}/admin/solutions/add'.format(host_name))
     return command
 
 def get_host_name(argv):

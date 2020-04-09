@@ -4,3 +4,5 @@ __pycache__/
 artifacts/
 workdir
 workdir/
+test.py
+.vscode/launch.json

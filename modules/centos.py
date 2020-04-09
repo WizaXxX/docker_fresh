@@ -7,14 +7,12 @@ def download_postgresql_connector():
     command.append('-O')
     command.append('/out_files/postgresql.jar')
     command.append('https://jdbc.postgresql.org/download/postgresql-42.2.4.jar')
-
     return command
 
 def add_all_before_commands():
 
     commands = []
     commands.append(download_postgresql_connector())
-
     return commands
 
 class New():

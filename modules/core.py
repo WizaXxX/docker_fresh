@@ -7,7 +7,6 @@ def download_onescript():
     command.append('-O')
     command.append('/out_files/onescript.rpm')
     command.append('http://oscript.io/downloads/1_1_1/onescript-engine-1.1.1-1.fc26.noarch.rpm')
-
     return command
 
 def unzip_platform_distr():
@@ -17,7 +16,6 @@ def unzip_platform_distr():
     command.append('alpine')
     command.append('sh')
     command.append('/main_dir/get_platform.sh')
-
     return command
 
 
@@ -25,28 +23,24 @@ def add_all_before_commands():
     commands = []
     commands.append(download_onescript())
     commands.append(unzip_platform_distr())
-
     return commands
 
 def delete_core_distr_files():
     command = helper.new_docker_command('images/core/distr/')
     command.append('alpine')
     command.append('sh -c "rm -rf /out_files/*.rpm"')
-
     return command
 
 def delete_license_tools_files():
     command = helper.new_docker_command('images/core/distr/')
     command.append('alpine')
     command.append('sh -c "rm -rf /out_files/license-tools"')
-
     return command
 
 def add_all_after_commands():
     commands = []
     commands.append(delete_core_distr_files())
     commands.append(delete_license_tools_files())
-
     return commands
 
 class New():
