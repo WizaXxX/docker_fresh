@@ -53,7 +53,7 @@ def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''
     command.append('\'/mnt/other-files/vrd/{}.vrd\''.format(descriptor))
     return command
 
-def create_ib_command(host_name, ib_name, conf_ver=''):
+def create_ib_command(host_name, ib_name, conf_ver='', job_dn='N'):
     command = []
     command.append('docker')
     command.append('exec')
@@ -61,8 +61,8 @@ def create_ib_command(host_name, ib_name, conf_ver=''):
     command.append('srv.' + host_name)
     command.append('/opt/1C/v8.3/x86_64/1cv8')
     command.append('CREATEINFOBASE')
-    command.append('\'Srvr="srv";Ref="{0}";DBMS=PostgreSQL;DBSrvr="db";DB="{0}";DBUID="postgres";LicDstr="Y";Locale="ru_RU";CrSQLDB="Y";SchJobDn="N";\''.format(
-        ib_name))
+    command.append('\'Srvr="srv";Ref="{0}";DBMS=PostgreSQL;DBSrvr="db";DB="{0}";DBUID="postgres";LicDstr="Y";Locale="ru_RU";CrSQLDB="Y";SchJobDn="{1}";\''.format(
+        ib_name, job_dn))
     command.append('/UseTemplate')
     command.append('/mnt/' + ib_name + '_' + conf_ver.replace('.', '_') + '.cf')
     command.append('/Out "/mnt/create_ib_' + ib_name + '.out"')

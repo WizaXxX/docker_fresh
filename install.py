@@ -20,7 +20,6 @@ images.append(site.New())
 # images.append(forum.New())
 # images.append(core.New())
 # images.append(gate.New())
-# images.append(nginx.New())
 
 debug = '-debug' in sys.argv
 start_time = datetime.now()

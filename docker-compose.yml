@@ -11,6 +11,7 @@ services:
       - ./mnt:/mnt
       - ../images/site/create_db.psql:/create_db_site.psql
       - ../images/forum/create_db.psql:/create_db_forum.psql
+      - ../images/db/wait_postgres.sh:/wait_postgres.sh
   
   nginx:
     image: nginx:stable-alpine
@@ -107,6 +108,7 @@ services:
       - ../conf/site/context.xml:/usr/local/tomcat/conf/context.xml
       - ../conf/site/server.xml:/usr/local/tomcat/conf/server.xml
       - ../images/site/distr/site/media:/var/www/content/media/
+      - ../images/site/wait_site.sh:/wait_site.sh
     depends_on:
       - db
 

@@ -2,12 +2,14 @@ import subprocess
 import os
 import modules.helper as helper
 import sys
+import json
 from datetime import datetime
 
 host_name = '.1cfresh.dev'
 sup_password = '123Qwer'
 new_server = False
 global_debug = False
+info_base_list = []
 configurations = {}
 
 docker_run_str = 'docker run --rm -v {}:/out_files alpine'.format(
@@ -72,17 +74,21 @@ def call(command, remote=True, debug=False, action='', measure_duration=False, s
 @print_description
 def get_configurations_data():
     """Get configuration data"""
-    # r=root, d=directories, files = files
-    for r, d, files in os.walk(helper.replace_sep(local_work_dir + 'mnt')):
-        for file in files:
-            conf_key = file.split('.')[0].split('_')[0]
-            configurations[conf_key] = '.'.join(file.split(
-                '.')[0].split('_')).replace(conf_key + '.', '')
+
+    with open('other_files/params.json') as json_file:
+        data = json.load(json_file)
+        for ib_data in data['ИнформационныеБазы']:
+            if not os.path.isfile('distr/{}'.format(ib_data['ИмяФайлаКонфигурации'])):
+                print('Не найден файл', ib_data['ИмяФайлаКонфигурации'])
+            else:
+                info_base_list.append(ib_data)
 
 
-def prepare_new_ib(key, post_data=''):
+def prepare_new_ib(key, post_data='', job_dn=False):
 
-    call(' '.join(helper.create_ib_command(host_name, key, configurations[key])),
+    job_dn_str = 'Y' if job_dn else 'N'
+
+    call(' '.join(helper.create_ib_command(host_name, key, configurations[key], job_dn_str)),
          remote=False,
          action='Creating ' + key,
          measure_duration=True)
@@ -173,8 +179,6 @@ def publish_sevises():
         host_name, 'smtl', False, 'withzone')), remote=False)
     call(' '.join(helper.web_publish_command(
         host_name, 'sa', False, 'zoneless')), remote=False)
-    call(' '.join(helper.web_publish_command(
-        host_name, 'openid', False, 'openid', 'sm')), remote=False)
 
     # publish int services
     call(' '.join(helper.web_publish_command(
@@ -185,10 +189,14 @@ def publish_sevises():
         host_name, 'sa', True, 'zoneless')), remote=False)
     call(' '.join(helper.web_publish_command(
         host_name, 'am', True, 'zoneless')), remote=False)
+    
+    # publish special services
+    call(' '.join(helper.web_publish_command(
+        host_name, 'openid', False, 'openid', 'sm')), remote=False)    
     call(' '.join(helper.web_publish_command(host_name, 'sc', True,
-                                             'sessioncontrol', 'sm;Usr=SessionControl;Pwd=' + sup_password)), remote=False)
+        'sessioncontrol', 'sm;Usr=SessionControl;Pwd=' + sup_password)), remote=False)
     call(' '.join(helper.web_publish_command(host_name, 'extreg', True,
-                                             'extreg', 'sm;Usr=ExtReg;Pwd=' + sup_password)), remote=False)
+        'extreg', 'sm;Usr=ExtReg;Pwd=' + sup_password)), remote=False)
 
     # restart Apache
     call('docker exec web.' + host_name +
@@ -263,9 +271,28 @@ def init_gate():
 
     call('docker exec -t web.{0} curl --user Администратор: https://{0}/a/adm/hs/docker_control/update_appgate'.format(host_name),
         remote=False)
+@print_description
+def wait_postgres():
+    """Waiting for postgres"""
+
+    call('docker exec -t db.{} /wait_postgres.sh'.format(host_name), remote=False)
+
+@print_description
+def wait_site():
+    """Waiting for site"""
+
+    call('docker exec -t site.{} /wait_site.sh'.format(host_name), remote=False)
+
+@print_description
+def enable_job_in_sm():
+    """Enable scheduled jobs sm"""
+
+    call('docker exec -t ras.{} deployka scheduledjobs unlock -db sm -db-user \'Администратор\''.format(host_name),
+        remote=False)
 
 global_start_time = datetime.now()
 print('{}Fresh is starting{}'.format(colors.GREEN, colors.WHITE))
+
 # destroy exist conteiners and network
 call(docker_compose_str + 'down', remote=False, silent=False)
 
@@ -285,18 +312,21 @@ if new_server:
 
 # start db srv ras web gate conteiners
 call(docker_compose_str + 'up -d db srv ras web gate', remote=False, silent=False)
+wait_postgres()
 
 if new_server:
-    create_db_site()
-    create_db_forum()
     publish_sevises()
     prepare_new_ib('smtl')
     prepare_new_ib('sa')
     prepare_new_ib('am')
     prepare_new_ib('sm', post_data='/mnt/other-files/params.json')
+    enable_job_in_sm()
+    create_db_site()
+    create_db_forum()
 
 # start site forum nginx conteiners
-call(docker_compose_str + 'up -d site forum nginx', remote=False, silent=False)
+call(docker_compose_str + 'up -d nginx site', remote=False, silent=False)
+wait_site()
 
 if new_server:
     delete_control_extension('smtl', 'Admin', 'smtl')
