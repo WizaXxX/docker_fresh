@@ -374,7 +374,8 @@ wait_site()
 if new_server:
     delete_all_control_ext()
     configurate_site()
-    init_gate()
+
+init_gate()
 
 global_end_time = datetime.now() - global_start_time
 print('{}Fresh started{}'.format(colors.GREEN, colors.WHITE), 'Duration:', global_end_time)
