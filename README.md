@@ -11,9 +11,9 @@
 	- Лучше от 8Гб
 - Свободного места от 50Гб
 - ПО:
--- [Python 3+](https://www.python.org/downloads/ "Python 3+")
--- [Docker](https://docs.docker.com/engine/install/ "Docker")
--- [Docker Compose](https://docs.docker.com/compose/install/ "Docker Compose")
+	- [Python 3+](https://www.python.org/downloads/ "Python 3+")
+	- [Docker](https://docs.docker.com/engine/install/ "Docker")
+	- [Docker Compose](https://docs.docker.com/compose/install/ "Docker Compose")
 
 ## Дистрибутивы необходимые для развертывания  
 Для развертывания стенда потребуются дистрибутивы платформы 1С Предприятие и подсистемы Фреш
@@ -43,6 +43,7 @@
 	- [Менеджер доступности. Версия 1.0.3.4](https://releases.1c.ru/version_file?nick=FreshPublic&ver=1.0.28.1&path=AM\1_0_3_4\AM_1_0_3_4_setup1c.exe "Менеджер доступности. Версия 1.0.3.4")
 - [1С:Библиотека технологии сервиса, редакция 1.2. Версия 1.2.2.26](https://releases.1c.ru/version_files?nick=SMTL12&ver=1.2.2.26 "1С:Библиотека технологии сервиса, редакция 1.2. Версия 1.2.2.26")
 </details>
+
 ## Подготовка к развертыванию
 
 ##### Клонирование репозитория
@@ -86,7 +87,7 @@ docker run --rm -it -v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1
 ```
 Где 
 `-v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses`
-является пробросом каталога с лицензиями `/var/1C/licenses` из контейнера в локальный каталог `/Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c` для дальнейшего использования
+является пробросом каталога с лицензиями `/var/1C/licenses` из контейнера в локальный каталог `/Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c` для дальнейшего использования.  
 Все остальный параметры заполняются согласно [документации](https://clck.ru/MvfNX "документации") утилиты **ring**
 
 ##### Сборка образов
