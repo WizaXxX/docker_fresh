@@ -25,6 +25,16 @@ class colors:
     GREEN = '\033[92m'
     WHITE = '\033[97m'
 
+class ib_prop:
+    a_name = 'ИмяВнешнейПубликации'
+    a_desc = 'ИмяФайлаШаблонаВнешненийПубликации'
+    int_name = 'ИмяВнутреннейПубликации'
+    int_desc = 'ИмяФайлаШаблонаВнутреннейПубликации'
+    conf_file = 'ИмяФайлаКонфигурации'
+    name = 'ИмяВКластере'
+    job = 'БлокироватьРаботуРегЗаданийПриСоздании'
+    adm = 'Администратор'
+
 
 def print_description(function_to_decorate):
 
@@ -49,7 +59,7 @@ def call(command, remote=True, debug=False, action='', measure_duration=False, s
         commands.append(docker_run_str)
     commands.append(command)
 
-    if action != '':
+    if action != '' and (debug or global_debug):
         print(action, end='\r')
     if debug or global_debug:
         print(' '.join(commands))
@@ -66,7 +76,7 @@ def call(command, remote=True, debug=False, action='', measure_duration=False, s
                     stdout=stdout, stderr=stderr)
     end_time = datetime.now() - start_time
 
-    if action != '':
+    if action != '' and (debug or global_debug):
         print(action, 'is fihish.', 'Duration:{}'.format(
             end_time) if measure_duration else '')
 
@@ -84,44 +94,71 @@ def get_configurations_data():
                 info_base_list.append(ib_data)
 
 
-def prepare_new_ib(key, post_data='', job_dn=False):
+def prepare_new_ib(ib_name, int_name, conf_file_name, job_block):
 
-    job_dn_str = 'Y' if job_dn else 'N'
+    job_dn_str = 'Y' if job_block else 'N'
 
-    call(' '.join(helper.create_ib_command(host_name, key, configurations[key], job_dn_str)),
+    call(' '.join(helper.create_ib_command(host_name, ib_name, conf_file_name, job_dn_str)),
          remote=False,
-         action='Creating ' + key,
+         action='Creating ' + ib_name,
          measure_duration=True)
 
-    call(' '.join(helper.install_control_ext_command(host_name, key)),
+    call(' '.join(helper.install_control_ext_command(host_name, ib_name)),
          remote=False,
          action='Installing control extension',
          measure_duration=True)
 
-    ext_name = helper.replace_sep(local_work_dir + 'mnt/' + key + '.cfe')
+    ext_name = helper.replace_sep(local_work_dir + 'mnt/' + ib_name + '.cfe')
     if os.path.isfile(ext_name):
-        call(' '.join(helper.install_ext_command(host_name, key)),
+        call(' '.join(helper.install_ext_command(host_name, ib_name)),
              remote=False,
              action='Installing extension',
              measure_duration=True)
 
-    if key == 'sm':
-        call(' '.join(helper.install_sm_ext_command(host_name, key)),
-         remote=False,
-         action='Installing gate control extension',
-         measure_duration=True)    
+    if ib_name == 'sm':
+        post_data = '/mnt/other-files/params.json'
+        call(' '.join(helper.install_sm_ext_command(host_name, ib_name)),
+            remote=False,
+            action='Installing gate control extension',
+            measure_duration=True)
+    else:
+        post_data = ''    
 
-    call(' '.join(helper.disable_safe_mode(host_name, key)),
+    call(' '.join(helper.disable_safe_mode(host_name, ib_name)),
          remote=False,
          action='Disabling safe mode for extensions',
          measure_duration=True)
 
     str_post = '-d @{}'.format(post_data) if post_data != '' else ''
-    call('docker exec web.{} curl {} -X POST http://localhost/int/{}/hs/api.1cfresh/init'.format(host_name, str_post, key),
+    call('docker exec web.{} curl {} -X POST http://localhost/int/{}/hs/api.1cfresh/init'.format(host_name, str_post, int_name),
          remote=False,
          action='Initialization',
          measure_duration=True)
 
+@print_description
+def prepare_bases():
+    """Prepare all bases"""
+
+    sm_ib = None
+
+    for ib_data in info_base_list:
+        if ib_data[ib_prop.name] == 'sm': 
+            sm_ib = ib_data
+            continue
+        prepare_new_ib(
+            ib_name=ib_data[ib_prop.name],
+            int_name=ib_data[ib_prop.int_name],
+            conf_file_name=ib_data[ib_prop.conf_file],
+            job_block=ib_data[ib_prop.job]
+        )
+    
+    # prepare sm base 
+    prepare_new_ib(
+            ib_name=sm_ib[ib_prop.name],
+            int_name=sm_ib[ib_prop.int_name],
+            conf_file_name=sm_ib[ib_prop.conf_file],
+            job_block=sm_ib[ib_prop.job]
+        )    
 
 @print_description
 def renew_nginx_files():
@@ -147,6 +184,8 @@ def renew_workdir():
     call('rm -rf /out_files/workdir')
     call('mkdir -p {}mnt'.format(work_dir))
     call('mkdir -p {}artifacts'.format(work_dir))
+    call('mkdir -p {}artifacts/web/conf'.format(work_dir))
+    call('sh -c "cp /out_files/conf/web/httpd.conf {}artifacts/web/conf/httpd.conf"'.format(work_dir))
     call('sh -c "cp /out_files/distr/*.cf {}mnt/"'.format(work_dir))
 
 
@@ -172,23 +211,21 @@ def renew_other_files():
 def publish_sevises():
     """Publish services"""
 
-    # publish a services
-    call(' '.join(helper.web_publish_command(
-        host_name, 'adm', False, 'zoneless', 'sm')), remote=False)
-    call(' '.join(helper.web_publish_command(
-        host_name, 'smtl', False, 'withzone')), remote=False)
-    call(' '.join(helper.web_publish_command(
-        host_name, 'sa', False, 'zoneless')), remote=False)
+    for ib_data in info_base_list:
+        if ib_data[ib_prop.a_name] != '':
+            call(' '.join(helper.web_publish_command(
+                host_name=host_name,
+                conf_name=ib_data[ib_prop.a_name],
+                internal=False,
+                descriptor=ib_data[ib_prop.a_desc],
+                base_name=ib_data[ib_prop.name])), remote=False)
 
-    # publish int services
-    call(' '.join(helper.web_publish_command(
-        host_name, 'sm', True, 'zoneless')), remote=False)
-    call(' '.join(helper.web_publish_command(
-        host_name, 'smtl', True, 'zoneless')), remote=False)
-    call(' '.join(helper.web_publish_command(
-        host_name, 'sa', True, 'zoneless')), remote=False)
-    call(' '.join(helper.web_publish_command(
-        host_name, 'am', True, 'zoneless')), remote=False)
+        call(' '.join(helper.web_publish_command(
+            host_name=host_name,
+            conf_name=ib_data[ib_prop.int_name],
+            internal=True,
+            descriptor=ib_data[ib_prop.int_desc],
+            base_name=ib_data[ib_prop.name])), remote=False)
     
     # publish special services
     call(' '.join(helper.web_publish_command(
@@ -199,9 +236,8 @@ def publish_sevises():
         'extreg', 'sm;Usr=ExtReg;Pwd=' + sup_password)), remote=False)
 
     # restart Apache
-    call('docker exec web.' + host_name +
-         ' chown -R usr1cv8:grp1cv8 /var/www', remote=False)
-    call('docker exec web.' + host_name + ' httpd -k graceful', remote=False)
+    call('docker exec web.{} chown -R usr1cv8:grp1cv8 /var/www'.format(host_name), remote=False)
+    call('docker exec web.{} httpd -k graceful'.format(host_name), remote=False)
 
 
 @print_description
@@ -211,11 +247,11 @@ def set_full_host_name(is_new):
     global host_name
     if is_new:
         part_host_name = helper.get_host_name(sys.argv)
-        f = open(local_work_dir + 'hostname', 'x+')
+        f = open('.hostname', 'w+')
         f.write(part_host_name)
         f.close()
     else:
-        f = open(local_work_dir + 'hostname')
+        f = open('.hostname')
         part_host_name = f.read() + host_name
         f.close()
 
@@ -245,6 +281,13 @@ def delete_control_extension(ib_name, user, desc):
 
     call(' '.join(helper.delete_control_extension(ib_name, host_name, user)), remote=False)
 
+def delete_all_control_ext():
+    for ib_data in info_base_list:
+        delete_control_extension(
+            ib_name=ib_data[ib_prop.name],
+            user= None if ib_data[ib_prop.adm] == '' else ib_data[ib_prop.adm],
+            desc=ib_data[ib_prop.name]
+        )
 
 @print_description
 def configurate_site():
@@ -271,11 +314,14 @@ def init_gate():
 
     call('docker exec -t web.{0} curl --user Администратор: https://{0}/a/adm/hs/docker_control/update_appgate'.format(host_name),
         remote=False)
+
+
 @print_description
 def wait_postgres():
     """Waiting for postgres"""
 
     call('docker exec -t db.{} /wait_postgres.sh'.format(host_name), remote=False)
+
 
 @print_description
 def wait_site():
@@ -283,12 +329,14 @@ def wait_site():
 
     call('docker exec -t site.{} /wait_site.sh'.format(host_name), remote=False)
 
+
 @print_description
 def enable_job_in_sm():
     """Enable scheduled jobs sm"""
 
     call('docker exec -t ras.{} deployka scheduledjobs unlock -db sm -db-user \'Администратор\''.format(host_name),
         remote=False)
+
 
 global_start_time = datetime.now()
 print('{}Fresh is starting{}'.format(colors.GREEN, colors.WHITE))
@@ -299,13 +347,11 @@ call(docker_compose_str + 'down', remote=False, silent=False)
 new_server = '-new' in sys.argv
 global_debug = '-debug' in sys.argv
 
-if new_server:
-    renew_workdir()
-    get_configurations_data()
-
 set_full_host_name(new_server)
 
 if new_server:
+    renew_workdir()
+    get_configurations_data()
     renew_nginx_files()
     renew_docker_compose()
     renew_other_files()
@@ -316,10 +362,7 @@ wait_postgres()
 
 if new_server:
     publish_sevises()
-    prepare_new_ib('smtl')
-    prepare_new_ib('sa')
-    prepare_new_ib('am')
-    prepare_new_ib('sm', post_data='/mnt/other-files/params.json')
+    prepare_bases()
     enable_job_in_sm()
     create_db_site()
     create_db_forum()
@@ -329,10 +372,7 @@ call(docker_compose_str + 'up -d nginx site', remote=False, silent=False)
 wait_site()
 
 if new_server:
-    delete_control_extension('smtl', 'Admin', 'smtl')
-    delete_control_extension('am', 'Администратор', 'am')
-    delete_control_extension('sm', 'Администратор', 'sm')
-    delete_control_extension('sa', None, 'sa')
+    delete_all_control_ext()
     configurate_site()
     init_gate()
 

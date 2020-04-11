@@ -6,3 +6,4 @@ workdir
 workdir/
 test.py
 .vscode/launch.json
+.hostname

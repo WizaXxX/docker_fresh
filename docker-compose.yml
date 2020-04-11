@@ -92,6 +92,7 @@ services:
       - ./artifacts/web/log:/var/log/1c
       - ./artifacts/web/www/a/:/var/www/a/
       - ./artifacts/web/www/int/:/var/www/int/
+      - ./artifacts/web/conf/httpd.conf:/etc/httpd/conf/httpd.conf
       - ./mnt:/mnt
     depends_on:
       - srv

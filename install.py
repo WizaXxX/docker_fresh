@@ -14,12 +14,12 @@ class colors:
     WHITE = '\033[97m'
 
 images = []
-# images.append(centos.New())
-# images.append(db.New())
+images.append(centos.New())
+images.append(db.New())
 images.append(site.New())
-# images.append(forum.New())
-# images.append(core.New())
-# images.append(gate.New())
+images.append(forum.New())
+images.append(core.New())
+images.append(gate.New())
 
 debug = '-debug' in sys.argv
 start_time = datetime.now()
