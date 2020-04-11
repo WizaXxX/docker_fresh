@@ -15,7 +15,7 @@
 -- [Docker](https://docs.docker.com/engine/install/ "Docker")
 -- [Docker Compose](https://docs.docker.com/compose/install/ "Docker Compose")
 
-## Дистрибутивы необходимые для развертывания
+## Дистрибутивы необходимые для развертывания  
 Для развертывания стенда потребуются дистрибутивы платформы 1С Предприятие и подсистемы Фреш
 - [Платформа 1С Предприятие 8.3](https://releases.1c.ru/project/Platform83 "Платформа 1С Предприятие 8.3") требуется два файла
 	- Клиент 1С:Предприятия (64-bit) для RPM-based Linux-систем
@@ -44,6 +44,7 @@
 - [1С:Библиотека технологии сервиса, редакция 1.2. Версия 1.2.2.26](https://releases.1c.ru/version_files?nick=SMTL12&ver=1.2.2.26 "1С:Библиотека технологии сервиса, редакция 1.2. Версия 1.2.2.26")
 </details>
 ## Подготовка к развертыванию
+
 ##### Клонирование репозитория
 ```bash
 git clone https://github.com/WizaXxX/docker_fresh.git
@@ -54,6 +55,7 @@ cd docker_fresh
 Все ранее  скачанные дистрибутивы необходимо разместить в каталоге `/docker_fresh/distr/`.
 После добавления всех дистрибутивов в каталог, он должен выглядить примерно следующим образом
 ![](https://i.ibb.co/S50sF96/2020-04-10-16-03-22.png)
+
 Файл **smtl.cf** это файл **demo/1cv8_service.cf** из комплекта поставки **1С:Библиотека технологии сервиса**
 
 ##### Настройка списка создаваемых информационных баз
@@ -80,12 +82,29 @@ cd docker_fresh
 Активация программных лицензий выполняется с помощью утилиты **ring** которая присутствует в образе **core**.
 Пример строки активации лицензии
 ```bash
-docker run --rm -it -v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses fresh/core bash -l -c 'ring license activate --first-name "Ilya" --middle-name "Olegovich" --last-name "Kozyrev" --email "ikoz@1c.ru" --country "Russia" --zip-code "101000" --town "Moscow" --street "Vatskaya" --house "53" --apartment "37" --serial "8101931947" --pin "387-132-243-334-589" --send-statistics "false"'
+docker run --rm -it -v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses fresh/core bash -l -c 'ring license activate --first-name "myname" --middle-name "mymiddlename" --last-name "mylastname" --email "myemail@email.com" --country "Russia" --zip-code "101000" --town "Moscow" --street "mystree" --house "myhouse" --apartment "myapart" --serial "myRegNumber" --pin "MyPIN" --send-statistics "false"'
 ```
 Где 
 `-v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses`
 является пробросом каталога с лицензиями `/var/1C/licenses` из контейнера в локальный каталог `/Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c` для дальнейшего использования
 Все остальный параметры заполняются согласно [документации](https://clck.ru/MvfNX "документации") утилиты **ring**
+
+##### Сборка образов
+Данный стенд содержит следующие контейнеры:
+- **centos** - является базовым образом для образом **core** и **db**
+- **core** - платформа 1С, клиентская и серверная часть. Дополнительно содержит **ring, onescript**
+- **db** - сервер баз дынных Postgres
+- **site** - компонент сайта Фреша
+- **forum** - компонент форум Фреша
+- **gate** - компонент шлюз приложений Фреша
+
+Сборка образов запускается командой
+```bash
+python3 install.py
+```
+**install.py** имеет флаг **-debug** при запуске с данным флагом весь процесс сборки будет подробно отображаться на экране
+
+##### Запуск стенда
 
 
 
