@@ -89,11 +89,11 @@ bash -l -c 'ring license activate --first-name "myname" --middle-name "mymiddlen
 Где 
 `-v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses`
 является пробросом каталога с лицензиями `/var/1C/licenses` из контейнера в локальный каталог `/Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c` для дальнейшего использования.  
-Все остальный параметры заполняются согласно [документации](https://clck.ru/MvfNX "документации") утилиты **ring**
+Все остальный параметры заполняются согласно [документации](https://its.1c.ru/db/v8315doc#bookmark:adm:TI000000683 "документации") утилиты **ring**
 
 ##### Сборка образов
 Данный стенд содержит следующие контейнеры:
-- **centos** - является базовым образом для образом **core** и **db**
+- **centos** - является базовым образом для образов **core** и **db**
 - **core** - платформа 1С, клиентская и серверная часть. Дополнительно содержит **ring, onescript**
 - **db** - сервер баз дынных Postgres
 - **site** - компонент сайта Фреша
