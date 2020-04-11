@@ -81,7 +81,10 @@ cd docker_fresh
 Активация программных лицензий выполняется с помощью утилиты **ring** которая присутствует в образе **core**.
 Пример строки активации лицензии
 ```bash
-docker run --rm -it -v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses fresh/core bash -l -c 'ring license activate --first-name "myname" --middle-name "mymiddlename" --last-name "mylastname" --email "myemail@email.com" --country "Russia" --zip-code "101000" --town "Moscow" --street "mystree" --house "myhouse" --apartment "myapart" --serial "myRegNumber" --pin "MyPIN" --send-statistics "false"'
+docker run --rm -it \ 
+-v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses \
+fresh/core \ 
+bash -l -c 'ring license activate --first-name "myname" --middle-name "mymiddlename" --last-name "mylastname" --email "myemail@email.com" --country "Russia" --zip-code "101000" --town "Moscow" --street "mystree" --house "myhouse" --apartment "myapart" --serial "myRegNumber" --pin "MyPIN" --send-statistics "false"'
 ```
 Где 
 `-v /Users/wizaxxx/Documents/projects/docker_fresh/licenses_1c:/var/1C/licenses`
