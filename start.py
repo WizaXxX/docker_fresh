@@ -89,7 +89,7 @@ def get_configurations_data():
         data = json.load(json_file)
         for ib_data in data['ИнформационныеБазы']:
             if not os.path.isfile('distr/{}'.format(ib_data['ИмяФайлаКонфигурации'])):
-                print('Не найден файл', ib_data['ИмяФайлаКонфигурации'])
+                print('File {} not found'.format(ib_data['ИмяФайлаКонфигурации']))
             else:
                 info_base_list.append(ib_data)
 
@@ -193,7 +193,7 @@ def renew_workdir():
 def renew_docker_compose():
     """Renew docker-compose file"""
 
-    call('cp /out_files/docker-compose.yml /out_files/workdir/docker-compose.yml')
+    call('cp /out_files/docker-compose_pattern.yml /out_files/workdir/docker-compose.yml')
     call('sh -c "sed -i \'s/HOSTNAMEREPLACE/{}/\' {}/*.yml"'.format(host_name, work_dir))
 
 
