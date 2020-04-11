@@ -12,8 +12,7 @@ global_debug = False
 info_base_list = []
 configurations = {}
 
-docker_run_str = 'docker run --rm -v {}:/out_files alpine'.format(
-    helper.this_path)
+docker_run_str = 'docker run --rm -v {}:/out_files alpine'.format(helper.this_path)
 docker_compose_str = 'docker-compose -f workdir/docker-compose.yml '
 
 work_dir = '/out_files/workdir/'
@@ -252,7 +251,7 @@ def set_full_host_name(is_new):
         f.close()
     else:
         f = open('.hostname')
-        part_host_name = f.read() + host_name
+        part_host_name = f.read()
         f.close()
 
     host_name = part_host_name + host_name

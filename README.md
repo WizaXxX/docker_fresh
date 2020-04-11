@@ -10,7 +10,7 @@
 - Оперативной памяти от 4Гб
 	- Лучше от 8Гб
 - Свободного места от 50Гб
-- ПО:
+- Необходимое ПО:
 	- [Python 3+](https://www.python.org/downloads/ "Python 3+")
 	- [Docker](https://docs.docker.com/engine/install/ "Docker")
 	- [Docker Compose](https://docs.docker.com/compose/install/ "Docker Compose")
