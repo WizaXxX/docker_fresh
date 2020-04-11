@@ -29,8 +29,7 @@
 	- Конфигурация **Менеджер доступности**
 - [1С:Библиотека технологии сервиса, редакция 1.2](https://releases.1c.ru/version_files?nick=SMTL12&ver=1.2.2.26 "1С:Библиотека технологии сервиса, редакция 1.2") или [1С:Библиотека технологии сервиса, редакция 2.0](https://releases.1c.ru/project/SMTL20 "1С:Библиотека технологии сервиса, редакция 2.0")
 
-<details>
-  <summary>Компоненты используемые для тестирования</summary>
+##### Компоненты используемые для тестирования
 - [1С Предприятие 8.3.15.1869](https://releases.1c.ru/version_files?nick=Platform83&ver=8.3.15.1869 "1С Предприятие 8.3.15.1869")
 	- [Клиент 1С:Предприятия (64-bit) для RPM-based Linux-систем](https://releases.1c.ru/version_file?nick=Platform83&ver=8.3.15.1869&path=Platform\8_3_15_1869\client_8_3_15_1869.rpm64.tar.gz "Клиент 1С:Предприятия (64-bit) для RPM-based Linux-систем")
 	- [Cервер 1С:Предприятия (64-bit) для RPM-based Linux-систем](https://releases.1c.ru/version_file?nick=Platform83&ver=8.3.15.1869&path=Platform\8_3_15_1869\rpm64_8_3_15_1869.tar.gz "Cервер 1С:Предприятия (64-bit) для RPM-based Linux-систем")
@@ -42,7 +41,6 @@
 	- [Агент сервиса. Версия 1.0.29.4](https://releases.1c.ru/version_file?nick=FreshPublic&ver=1.0.28.1&path=SA\1_0_29_4\SA_1_0_29_4_setup1c.exe "Агент сервиса. Версия 1.0.29.4")
 	- [Менеджер доступности. Версия 1.0.3.4](https://releases.1c.ru/version_file?nick=FreshPublic&ver=1.0.28.1&path=AM\1_0_3_4\AM_1_0_3_4_setup1c.exe "Менеджер доступности. Версия 1.0.3.4")
 - [1С:Библиотека технологии сервиса, редакция 1.2. Версия 1.2.2.26](https://releases.1c.ru/version_files?nick=SMTL12&ver=1.2.2.26 "1С:Библиотека технологии сервиса, редакция 1.2. Версия 1.2.2.26")
-</details>
 
 ## Подготовка к развертыванию
 
