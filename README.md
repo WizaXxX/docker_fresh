@@ -13,8 +13,8 @@
 - Свободного места от 50Гб
 - Необходимое ПО:
 	- [Python 3+](https://www.python.org/downloads/ "Python 3+")
-	- [Docker](https://docs.docker.com/engine/install/ "Docker")
-	- [Docker Compose](https://docs.docker.com/compose/install/ "Docker Compose")
+	- [Docker. Инструкция по установке](https://docs.docker.com/engine/install/ "Docker. Инструкция по установке")
+	- [Docker Compose. Инструкция по установке](https://docs.docker.com/compose/install/ "Docker Compose. Инструкция по установке")
 
 ## Дистрибутивы необходимые для развертывания  
 Для развертывания стенда потребуются дистрибутивы платформы 1С Предприятие и подсистемы Фреш
