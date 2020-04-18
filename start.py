@@ -338,13 +338,17 @@ def enable_job_in_sm():
     call('docker exec -t ras.{} deployka scheduledjobs unlock -db sm -db-user \'Администратор\''.format(host_name),
         remote=False)
 
+@print_description
+def down_containers():
+    """Down all conteiners"""
+
+    call(docker_compose_str + 'down', remote=False)
+
 
 global_start_time = datetime.now()
 print('{}Fresh is starting{}'.format(colors.GREEN, colors.WHITE))
 
-# destroy exist conteiners and network
-call(docker_compose_str + 'down', remote=False, silent=False)
-
+down_containers()
 new_server = '-new' in sys.argv
 global_debug = '-debug' in sys.argv
 
