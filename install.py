@@ -12,6 +12,13 @@ import modules.gate as gate
 class colors:
     GREEN = '\033[92m'
     WHITE = '\033[97m'
+    RED = '\033[91m'
+
+def image_exist(image_name):
+    full_image_name = 'fresh/' + image.name
+    result = subprocess.run(['docker images'], shell=True, stdout=stdout, stderr=stderr)
+    
+    return full_image_name in str(result.stdout)
 
 images = []
 images.append(centos.New())
@@ -25,7 +32,7 @@ debug = '-debug' in sys.argv
 start_time = datetime.now()
 print('{}Build is starting{}'.format(colors.GREEN, colors.WHITE))
 
-if  debug:
+if debug:
     stdout = None
     stderr = None
 else:
@@ -40,9 +47,12 @@ for image in images:
         if debug: print(command)
         subprocess.call(' '.join(command), shell=True, stdout=stdout, stderr=stderr)
 
-
-    subprocess.run(['docker', 'build', '-t', 'fresh/' + image.name, 'images/' + image.name],
+    result = subprocess.run(['docker', 'build', '-t', 'fresh/' + image.name, 'images/' + image.name],
         stdout=stdout, stderr=stderr)
+
+    if result.returncode != 0 or not image_exist(image.name):
+        print('Building', image.name , '...', '{}error'.format(colors.RED), colors.WHITE)
+        exit(1)    
 
     for command in image.commands_after:
         if debug: print(command)
