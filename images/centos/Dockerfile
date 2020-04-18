@@ -9,7 +9,7 @@ RUN set -ex; \
 	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
 # verify the signature
 	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+	gpg  --yes --always-trust --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
 	gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu; \
 	rm -r "$GNUPGHOME" /tmp/gosu.asc; \	
 	chmod +x /usr/bin/gosu; \
