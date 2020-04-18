@@ -188,6 +188,7 @@ def renew_workdir():
     call('mkdir -p {}artifacts/web/conf'.format(work_dir))
     call('sh -c "cp /out_files/conf/web/httpd.conf {}artifacts/web/conf/httpd.conf"'.format(work_dir))
     call('sh -c "cp /out_files/distr/*.cf {}mnt/"'.format(work_dir))
+    call('sh -c "cp /out_files/distr/*.cfe {}mnt/"'.format(work_dir))
 
 
 @print_description
