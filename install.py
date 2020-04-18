@@ -16,7 +16,7 @@ class colors:
 
 def image_exist(image_name):
     full_image_name = 'fresh/' + image.name
-    result = subprocess.run(['docker images'], shell=True, stdout=stdout, stderr=stderr)
+    result = subprocess.run(['docker images'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     return full_image_name in str(result.stdout)
 
