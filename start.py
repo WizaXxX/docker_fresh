@@ -23,6 +23,7 @@ local_work_dir = helper.replace_sep(helper.this_path + '/workdir/')
 class colors:
     GREEN = '\033[92m'
     WHITE = '\033[97m'
+    RED = '\033[91m'
 
 class ib_prop:
     a_name = 'ИмяВнешнейПубликации'
@@ -83,15 +84,16 @@ def call(command, remote=True, debug=False, action='', measure_duration=False, s
 @print_description
 def get_configurations_data():
     """Get configuration data"""
-
+    is_fail = False
     with open('other_files/params.json') as json_file:
         data = json.load(json_file)
         for ib_data in data['ИнформационныеБазы']:
             if not os.path.isfile('distr/{}'.format(ib_data['ИмяФайлаКонфигурации'])):
-                print('File {} not found'.format(ib_data['ИмяФайлаКонфигурации']))
+                is_fail = True
+                print(colors.RED, 'File {} not found'.format(ib_data['ИмяФайлаКонфигурации']), colors.WHITE)
             else:
                 info_base_list.append(ib_data)
-
+    if is_fail: exit(1)
 
 def prepare_new_ib(ib_name, int_name, conf_file_name, job_block):
 
