@@ -1,6 +1,7 @@
 FROM centos:7
 
 ENV GOSU_VERSION 1.11
+ENV GPG_KEYS B42F6819007F00F88E364FD4036A9C25BF357DD4
 RUN set -ex; \
 	yum -y install epel-release; \
 	yum -y install glibc-locale-source wget dpkg; \
@@ -9,7 +10,7 @@ RUN set -ex; \
 	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
 # verify the signature
 	export GNUPGHOME="$(mktemp -d)"; \
-	gpg  --yes --always-trust --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+	( gpg --yes --always-trust --keyserver ha.pool.sks-keyservers.net --recv-keys "$GPG_KEYS" || gpg --yes --always-trust --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "$GPG_KEYS" || gpg --yes --always-trust --keyserver gpg --yes --always-trust --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$GPG_KEYS" --recv-keys "$GPG_KEYS" || gpg --yes --always-trust --keyserver pgp.mit.edu --recv-keys "$GPG_KEYS" || gpg --yes --always-trust --keyserver keyserver.pgp.com --recv-keys "$GPG_KEYS" ); \
 	gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu; \
 	rm -r "$GNUPGHOME" /tmp/gosu.asc; \	
 	chmod +x /usr/bin/gosu; \
