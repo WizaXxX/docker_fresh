@@ -118,7 +118,7 @@ def install_ext_command(host_name, ib_name):
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/LoadCfg')
-    command.append('"/mnt/{}"'.format(ib_name))
+    command.append('"/mnt/{}.cfe"'.format(ib_name))
     command.append('-Extension')
     command.append('"fresh"')
     command.append('/UpdateDBCfg')
