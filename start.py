@@ -184,7 +184,6 @@ def renew_workdir():
 
     call('rm -rf /out_files/workdir')
     call('mkdir -p {}mnt'.format(work_dir))
-    call('mkdir -p {}artifacts'.format(work_dir))
     call('mkdir -p {}artifacts/web/conf'.format(work_dir))
     call('sh -c "cp /out_files/conf/web/httpd.conf {}artifacts/web/conf/httpd.conf"'.format(work_dir))
     call('sh -c "cp /out_files/distr/*.cf {}mnt/"'.format(work_dir))
@@ -301,12 +300,12 @@ def configurate_site():
     call(' '.join(helper.enable_openid(host_name)), remote=False)
     call(' '.join(helper.add_solution(
         host_name=host_name,
-        brief_desc='БТС',
-        full_desc='БТС',
+        brief_desc='"БТС"',
+        full_desc='"БТС"',
         display_order=0,
         id='smtl',
-        possibilities='БТС',
-        title='Библиотека технологии сервиса'
+        possibilities='"БТС"',
+        title='"Библиотека технологии сервиса"'
     )), remote=False)
 
 
