@@ -3,6 +3,8 @@ import os
 import modules.helper as helper
 import sys
 import json
+import threading
+import time
 from datetime import datetime
 
 host_name = '.1cfresh.dev'
@@ -36,6 +38,25 @@ class ib_prop:
     adm = 'Администратор'
 
 
+class ProgressThread(threading.Thread):
+
+    desc = ''
+
+    def __init__(self, desc):
+        self.desc = desc
+        super().__init__(target=self._spin)
+        self._stopevent = threading.Event()
+
+    def stop(self):
+        self._stopevent.set()
+
+    def _spin(self):
+
+        while not self._stopevent.isSet():
+            for t in ['   ', '.  ', '.. ', '...']:
+                print(self.desc, t, end='\r')
+                time.sleep(0.5)
+
 def print_description(function_to_decorate):
 
     def wrapper(*args, **kwargs):
@@ -45,10 +66,22 @@ def print_description(function_to_decorate):
         else:
             desc = ''
 
-        print(function_to_decorate.__doc__, desc, '...', end='\r')
-        function_to_decorate(*args, **kwargs)
-        print(function_to_decorate.__doc__,
-              desc, '...', '{}done'.format(colors.GREEN), colors.WHITE)
+        all_desc = function_to_decorate.__doc__ + desc
+    
+        task = threading.Thread(target=function_to_decorate, args=args, kwargs=kwargs)
+        task.start()
+
+        progress_thread = ProgressThread(all_desc)
+        progress_thread.start()
+        
+        task.join()
+        progress_thread.stop()
+
+        while progress_thread.isAlive():
+            time.sleep(0.2)
+
+        print(all_desc, '...', '{}done'.format(colors.GREEN), colors.WHITE)
+
     return wrapper
 
 
