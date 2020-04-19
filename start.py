@@ -17,7 +17,7 @@ docker_compose_str = 'docker-compose -f workdir/docker-compose.yml '
 
 work_dir = '/out_files/workdir/'
 work_dir_other = work_dir + 'mnt/other-files/'
-local_work_dir = helper.replace_sep(helper.this_path + '/workdir/')
+local_work_dir = helper.replace_sep(helper.this_path + 'workdir/')
 
 
 class colors:
@@ -72,14 +72,14 @@ def call(command, remote=True, debug=False, action='', measure_duration=False, s
         stderr = subprocess.PIPE
 
     start_time = datetime.now()
-    subprocess.call(' '.join(commands), shell=True,
-                    stdout=stdout, stderr=stderr)
+    result = subprocess.call(' '.join(commands), shell=True, stdout=stdout, stderr=stderr)
     end_time = datetime.now() - start_time
 
     if action != '' and (debug or global_debug):
         print(action, 'is fihish.', 'Duration:{}'.format(
             end_time) if measure_duration else '')
 
+    return result
 
 @print_description
 def get_configurations_data():
@@ -95,40 +95,60 @@ def get_configurations_data():
                 info_base_list.append(ib_data)
     if is_fail: exit(1)
 
+def check_call_work(result, action, ib_name):
+    if result == 0: return
+
+    print(action, ib_name, 'is failed')
+    f = open(local_work_dir + 'mnt/{}_{}.out'.format(action, ib_name))
+    print(f.read())
+    f.close()
+    exit(1)
+
+
 def prepare_new_ib(ib_name, int_name, conf_file_name, job_block):
 
     job_dn_str = 'Y' if job_block else 'N'
 
-    call(' '.join(helper.create_ib_command(host_name, ib_name, conf_file_name, job_dn_str)),
+    action = 'create_ib'
+    result = call(' '.join(helper.create_ib_command(host_name, ib_name, conf_file_name, job_dn_str, action)),
          remote=False,
          action='Creating ' + ib_name,
          measure_duration=True)
+    check_call_work(result, action, ib_name)
 
-    call(' '.join(helper.install_control_ext_command(host_name, ib_name)),
+    action = 'install_control_ext'
+    result = call(' '.join(helper.install_control_ext_command(host_name, ib_name, action)),
          remote=False,
          action='Installing control extension',
          measure_duration=True)
+    check_call_work(result, action, ib_name)
 
     ext_name = helper.replace_sep(local_work_dir + 'mnt/' + ib_name + '.cfe')
     if os.path.isfile(ext_name):
-        call(' '.join(helper.install_ext_command(host_name, ib_name)),
+        action = 'install_ext'
+        result = call(' '.join(helper.install_ext_command(host_name, ib_name, action)),
              remote=False,
              action='Installing extension',
              measure_duration=True)
+        check_call_work(result, action, ib_name)
 
     if ib_name == 'sm':
+        action = 'install_sm_ext'
         post_data = '/mnt/other-files/params.json'
-        call(' '.join(helper.install_sm_ext_command(host_name, ib_name)),
+        result = call(' '.join(helper.install_sm_ext_command(host_name, ib_name, action)),
             remote=False,
             action='Installing gate control extension',
             measure_duration=True)
+        check_call_work(result, action, ib_name)
     else:
         post_data = ''    
 
-    call(' '.join(helper.disable_safe_mode(host_name, ib_name)),
+    action = 'disable_safe_mode'
+    result = call(' '.join(helper.disable_safe_mode(host_name, ib_name, action)),
          remote=False,
          action='Disabling safe mode for extensions',
          measure_duration=True)
+    check_call_work(result, action, ib_name)
 
     str_post = '-d @{}'.format(post_data) if post_data != '' else ''
     call('docker exec web.{} curl {} -X POST http://localhost/int/{}/hs/api.1cfresh/init'.format(host_name, str_post, int_name),
@@ -346,7 +366,7 @@ def down_containers():
 
 
 global_start_time = datetime.now()
-print('{}Fresh is starting{}'.format(colors.GREEN, colors.WHITE))
+print('{}Fresh is starting{} at {}'.format(colors.GREEN, colors.WHITE, global_start_time))
 
 down_containers()
 new_server = '-new' in sys.argv

@@ -53,7 +53,10 @@ def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''
     command.append('\'/mnt/other-files/vrd/{}.vrd\''.format(descriptor))
     return command
 
-def create_ib_command(host_name, ib_name, file_name, job_block):
+def get_out_file_name_command(action, ib_name):
+    return '/Out "/mnt/{}_{}.out"'.format(action, ib_name)
+
+def create_ib_command(host_name, ib_name, file_name, job_block, action):
     command = []
     command.append('docker')
     command.append('exec')
@@ -65,11 +68,10 @@ def create_ib_command(host_name, ib_name, file_name, job_block):
         ib_name, job_block))
     command.append('/UseTemplate')
     command.append('/mnt/{}'.format(file_name))
-    command.append('/Out "/mnt/create_ib_' + ib_name + '.out"')
-    command.append('/DumpResult "/mnt/create_ib_' + ib_name + '.result"')
+    command.append(get_out_file_name_command(action, ib_name))
     return command
 
-def install_control_ext_command(host_name, ib_name):
+def install_control_ext_command(host_name, ib_name, action):
     command = []
     command.append('docker')
     command.append('exec')
@@ -84,11 +86,10 @@ def install_control_ext_command(host_name, ib_name):
     command.append('-Extension')
     command.append('"api_1cfresh"')
     command.append('/UpdateDBCfg')
-    command.append('/Out "/mnt/install_control_ext_{}.out"'.format(ib_name))
-    command.append('/DumpResult "/mnt/install_control_ext_{}.result"'.format(ib_name))
+    command.append(get_out_file_name_command(action, ib_name))
     return command
 
-def install_sm_ext_command(host_name, ib_name):
+def install_sm_ext_command(host_name, ib_name, action):
     command = []
     command.append('docker')
     command.append('exec')
@@ -103,11 +104,10 @@ def install_sm_ext_command(host_name, ib_name):
     command.append('-Extension')
     command.append('"УправлениеМС"')
     command.append('/UpdateDBCfg')
-    command.append('/Out "/mnt/install_sm_ext_{}.out"'.format(ib_name))
-    command.append('/DumpResult "/mnt/install_sm_ext_{}.result"'.format(ib_name))
+    command.append(get_out_file_name_command(action, ib_name))
     return command
 
-def install_ext_command(host_name, ib_name):
+def install_ext_command(host_name, ib_name, action):
     command = []
     command.append('docker')
     command.append('exec')
@@ -122,11 +122,10 @@ def install_ext_command(host_name, ib_name):
     command.append('-Extension')
     command.append('"fresh"')
     command.append('/UpdateDBCfg')
-    command.append('/Out "/mnt/install_ext_{}.out"'.format(ib_name))
-    command.append('/DumpResult "/mnt/install_ext_{}.result"'.format(ib_name))
+    command.append(get_out_file_name_command(action, ib_name))
     return command
 
-def disable_safe_mode(host_name, ib_name):
+def disable_safe_mode(host_name, ib_name, action):
     command = []
     command.append('docker')
     command.append('exec')
@@ -138,8 +137,7 @@ def disable_safe_mode(host_name, ib_name):
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/Execute')
     command.append('"/mnt/other-files/cfe/disable.epf"')
-    command.append('/Out "/mnt/disable_safe_mode_{}.out"'.format(ib_name))
-    command.append('/DumpResult "/mnt/disable_safe_mode_{}.result"'.format(ib_name))
+    command.append(get_out_file_name_command(action, ib_name))
     return command
 
 def delete_control_extension(ib_name, host_name, user):
