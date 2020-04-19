@@ -57,6 +57,19 @@ class ProgressThread(threading.Thread):
                 print(self.desc, t, end='\r')
                 time.sleep(0.5)
 
+class DoThread(threading.Thread):
+    
+    is_good = False
+    def run(self):
+        try:
+            threading.Thread.run(self)
+        except:
+            self.is_good = False
+            pass
+        else:
+            self.is_good = True
+
+
 def print_description(function_to_decorate):
 
     def wrapper(*args, **kwargs):
@@ -67,8 +80,8 @@ def print_description(function_to_decorate):
             desc = ''
 
         all_desc = function_to_decorate.__doc__ + desc
-    
-        task = threading.Thread(target=function_to_decorate, args=args, kwargs=kwargs)
+        
+        task = DoThread(target=function_to_decorate, args=args, kwargs=kwargs)
         task.start()
 
         progress_thread = ProgressThread(all_desc)
@@ -76,9 +89,11 @@ def print_description(function_to_decorate):
         
         task.join()
         progress_thread.stop()
-
+    
         while progress_thread.isAlive():
             time.sleep(0.2)
+
+        if not task.is_good: exit(1)
 
         print(all_desc, '...', '{}done'.format(colors.GREEN), colors.WHITE)
 
@@ -234,7 +249,7 @@ def renew_nginx_files():
 @print_description
 def renew_workdir():
     """Renew wordir"""
-
+    
     call('rm -rf /out_files/workdir')
     call('mkdir -p {}mnt'.format(work_dir))
     call('mkdir -p {}artifacts/web/conf'.format(work_dir))

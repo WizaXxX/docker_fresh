@@ -8,6 +8,7 @@ services:
     container_name: db.HOSTNAMEREPLACE
     volumes:
       - ./artifacts/db/data:/var/lib/1c/pgdata
+      - ./postgres_socket:/tmp/postgresql/socket
       - ./mnt:/mnt
       - ../images/site/create_db.psql:/create_db_site.psql
       - ../images/forum/create_db.psql:/create_db_forum.psql
@@ -55,6 +56,7 @@ services:
     container_name: srv.HOSTNAMEREPLACE
     command: srv+cli
     volumes:
+      - ./postgres_socket:/tmp/postgresql/socket
       - ./artifacts/srv/data:/var/lib/1c/data
       - ./artifacts/srv/log:/var/log/1c
       - ./mnt:/mnt

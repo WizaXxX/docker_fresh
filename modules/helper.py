@@ -64,7 +64,7 @@ def create_ib_command(host_name, ib_name, file_name, job_block, action):
     command.append('srv.' + host_name)
     command.append('/opt/1C/v8.3/x86_64/1cv8')
     command.append('CREATEINFOBASE')
-    command.append('\'Srvr="srv";Ref="{0}";DBMS=PostgreSQL;DBSrvr="db";DB="{0}";DBUID="postgres";LicDstr="Y";Locale="ru_RU";CrSQLDB="Y";SchJobDn="{1}";\''.format(
+    command.append('\'Srvr="srv";Ref="{0}";DBMS=PostgreSQL;DBSrvr="/tmp/postgresql/socket";DB="{0}";DBUID="postgres";LicDstr="Y";Locale="ru_RU";CrSQLDB="Y";SchJobDn="{1}";\''.format(
         ib_name, job_block))
     command.append('/UseTemplate')
     command.append('/mnt/{}'.format(file_name))

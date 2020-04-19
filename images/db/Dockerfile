@@ -11,6 +11,7 @@ RUN localedef -f UTF-8 -i ru_RU ru_RU.UTF-8 \
 EXPOSE 5432
 
 ENV PGDATA /var/lib/1c/pgdata
+ENV PGSOCKET /tmp/postgresql/socket
 
 VOLUME ${PGDATA}
 
