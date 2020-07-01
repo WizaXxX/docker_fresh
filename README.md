@@ -61,7 +61,7 @@ sudo usermod -aG docker ${USER}
 
 ##### Клонирование репозитория
 ```bash
-git clone https://github.com/WizaXxX/docker_fresh.git
+git clone https://github.com/1C-Company/docker_fresh.git
 cd docker_fresh
 ```
 
