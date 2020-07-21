@@ -24,7 +24,7 @@ def rename_site_file():
     command.append('alpine')
     command.append('sh')
     command.append('-c')
-    command.append('"mv /out_files/site/site*.war /out_files/site/ROOT.war"')
+    command.append('"mv /out_files/site/*.war /out_files/site/ROOT.war"')
     return command
 
 def add_all_before_commands():
