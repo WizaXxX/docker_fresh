@@ -7,3 +7,4 @@ workdir/
 test.py
 .vscode/launch.json
 .hostname
+conf/core/nethasp.ini
