@@ -44,13 +44,13 @@ def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''
     command.append('-connstr')
 
     if base_name != '':
-        command.append('\'Srvr=srv;Ref={};\''.format(base_name))
+        command.append('"Srvr=srv;Ref={};"'.format(base_name))
     else:
-        command.append('\'Srvr=srv;Ref={};\''.format(conf_name))
+        command.append('"Srvr=srv;Ref={};"'.format(conf_name))
     command.append('-confpath')
-    command.append('\'/etc/httpd/conf/httpd.conf\'')
+    command.append('"/etc/httpd/conf/httpd.conf"')
     command.append('-descriptor')
-    command.append('\'/mnt/other-files/vrd/{}.vrd\''.format(descriptor))
+    command.append('"/mnt/other-files/vrd/{}.vrd"'.format(descriptor))
     return command
 
 def get_out_file_name_command(action, ib_name):
@@ -64,7 +64,7 @@ def create_ib_command(host_name, ib_name, file_name, job_block, action):
     command.append('srv.' + host_name)
     command.append('/opt/1C/v8.3/x86_64/1cv8')
     command.append('CREATEINFOBASE')
-    command.append('\'Srvr="srv";Ref="{0}";DBMS=PostgreSQL;DBSrvr="/tmp/postgresql/socket";DB="{0}";DBUID="postgres";LicDstr="Y";Locale="ru_RU";CrSQLDB="Y";SchJobDn="{1}";\''.format(
+    command.append('"Srvr=srv;Ref={0};DBMS=PostgreSQL;DBSrvr=/tmp/postgresql/socket;DB={0};DBUID=postgres;LicDstr=Y;Locale=ru_RU;CrSQLDB=Y;SchJobDn={1};"'.format(
         ib_name, job_block))
     command.append('/UseTemplate')
     command.append('/mnt/{}'.format(file_name))

@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import platform
 from datetime import datetime
 
 import modules.site as site
@@ -14,9 +15,15 @@ class colors:
     WHITE = '\033[97m'
     RED = '\033[91m'
 
+def get_docker_image_command():
+    if platform.system().lower() == 'windows':
+        return ['docker', 'images']
+    else:
+        return ['docker images']
+
 def image_exist(image_name):
     full_image_name = 'fresh/' + image.name
-    result = subprocess.run(['docker' ,'images'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = subprocess.run(get_docker_image_command(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     return full_image_name in str(result.stdout)
 
