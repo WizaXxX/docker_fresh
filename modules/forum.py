@@ -27,7 +27,7 @@ def rename_forum_file():
     command.append('alpine')
     command.append('sh')
     command.append('-c')
-    command.append('"mv /out_files/forum/forum*.war /out_files/forum/ROOT.war"')
+    command.append('"mv /out_files/forum/*.war /out_files/forum/ROOT.war"')
     return command
 
 def add_all_before_commands():

@@ -5,6 +5,7 @@ import sys
 import json
 import threading
 import time
+import codecs
 from datetime import datetime
 
 host_name = '.1cfresh.dev'
@@ -133,7 +134,7 @@ def call(command, remote=True, debug=False, action='', measure_duration=False, s
 def get_configurations_data():
     """Get configuration data"""
     is_fail = False
-    with open('other_files/params.json') as json_file:
+    with codecs.open('other_files/params.json', 'r', 'utf-8') as json_file:
         data = json.load(json_file)
         for ib_data in data['ИнформационныеБазы']:
             if not os.path.isfile('distr/{}'.format(ib_data['ИмяФайлаКонфигурации'])):
@@ -205,6 +206,13 @@ def prepare_new_ib(ib_name, int_name, conf_file_name, job_block):
          measure_duration=True)
 
 @print_description
+def delete_volumes():
+    """Delete volumes"""
+
+    call('docker volume rm workdir_1c_pg_data', remote=False)
+    call('docker volume rm workdir_1c_pg_socket', remote=False)
+
+@print_description
 def prepare_bases():
     """Prepare all bases"""
 
@@ -235,15 +243,15 @@ def renew_nginx_files():
 
     conf_catalog = work_dir + 'artifacts/nginx/conf/'
     call('mkdir -p {}'.format(conf_catalog))
-    call('sh -c \'cp -r /out_files/conf/nginx/* {}'.format(conf_catalog) + '\'')
+    call('sh -c "cp -r /out_files/conf/nginx/* {}"'.format(conf_catalog))
 
-    call('sh -c \'sed -i \'s/hosthosthost/{}/g\' {}*.conf\''.format(host_name, conf_catalog))
-    call('sh -c \'sed -i \'s/sitesitesite/site.{}/g\' {}*.conf\''.format(host_name, conf_catalog))
-    call('sh -c \'sed -i \'s/webwebweb/web.{}/g\' {}*.conf\''.format(host_name, conf_catalog))
-    call('sh -c \'sed -i \'s/gategategate/gate.{}/g\' {}*.conf\''.format(host_name, conf_catalog))
+    call('sh -c "sed -i \'s/hosthosthost/{}/g\' {}*.conf"'.format(host_name, conf_catalog))
+    call('sh -c "sed -i \'s/sitesitesite/site.{}/g\' {}*.conf"'.format(host_name, conf_catalog))
+    call('sh -c "sed -i \'s/webwebweb/web.{}/g\' {}*.conf"'.format(host_name, conf_catalog))
+    call('sh -c "sed -i \'s/gategategate/gate.{}/g\' {}*.conf"'.format(host_name, conf_catalog))
 
-    call('sh -c \'sed -i \'s/sitesitesite/site.{}/g\' {}conf.d/*.conf\''.format(host_name, conf_catalog))
-    call('sh -c \'sed -i \'s/hosthosthost/{}/g\' {}conf.d/*.conf\''.format(host_name, conf_catalog))
+    call('sh -c "sed -i \'s/sitesitesite/site.{}/g\' {}conf.d/*.conf"'.format(host_name, conf_catalog))
+    call('sh -c "sed -i \'s/hosthosthost/{}/g\' {}conf.d/*.conf"'.format(host_name, conf_catalog))
 
 
 @print_description
@@ -332,7 +340,7 @@ def set_full_host_name(is_new):
 def create_db_site():
     """Create db for site"""
 
-    call('docker exec -t db.{} sh -c \'/usr/bin/psql -U postgres -f {}'.format(host_name, '/create_db_site.psql\''),
+    call('docker exec -t db.{} sh -c "/usr/bin/psql -U postgres -f {}'.format(host_name, '/create_db_site.psql"'),
          remote=False)
 
 
@@ -340,7 +348,7 @@ def create_db_site():
 def create_db_forum():
     """Create db for forum"""
 
-    call('docker exec -t db.{} sh -c \'/usr/bin/psql -U postgres -f {}'.format(host_name, '/create_db_forum.psql\''),
+    call('docker exec -t db.{} sh -c "/usr/bin/psql -U postgres -f {}'.format(host_name, '/create_db_forum.psql"'),
          remote=False)
 
 
@@ -403,7 +411,7 @@ def wait_site():
 def enable_job_in_sm():
     """Enable scheduled jobs sm"""
 
-    call('docker exec -t ras.{} deployka scheduledjobs unlock -db sm -db-user \'Администратор\''.format(host_name),
+    call('docker exec -t ras.{} deployka scheduledjobs unlock -db sm -db-user "Администратор"'.format(host_name),
         remote=False)
 
 @print_description
@@ -428,6 +436,7 @@ if new_server:
     renew_nginx_files()
     renew_docker_compose()
     renew_other_files()
+    delete_volumes()
 
 # start db srv ras web gate conteiners
 call(docker_compose_str + 'up -d db srv ras web gate', remote=False, silent=False)
