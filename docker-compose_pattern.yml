@@ -48,8 +48,23 @@ services:
       - ../images/site/distr/site/media:/var/www/content/media/
     depends_on:
       - site
-      - forum
-
+      - forum 
+  s3:
+    image: minio/minio:latest
+    hostname: s3.1cfresh.dev
+    container_name: s3.1cfresh.dev
+    volumes:
+      - ./artifacts/s3:/data
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      
   srv:
     image: fresh/core
     hostname: srv.HOSTNAMEREPLACE
