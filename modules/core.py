@@ -6,7 +6,7 @@ def download_onescript():
     command.append('wget')
     command.append('-O')
     command.append('/out_files/onescript.rpm')
-    command.append('http://oscript.io/downloads/1_1_1/onescript-engine-1.1.1-1.fc26.noarch.rpm')
+    command.append('https://oscript.io/downloads/1_4_0/x64/onescript-engine-1.4.0-1.fc26.noarch.rpm')
     return command
 
 def unzip_platform_distr():

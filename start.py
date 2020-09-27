@@ -283,6 +283,11 @@ def renew_other_files():
     call('sh -c "sed -i \'s/HOSTNAMEREPLACE/{}/\' {}vrd/*.vrd"'.format(host_name, work_dir_other))
     call('sh -c "sed -i \'s/HOSTNAMEREPLACE/{}/\' {}params.json"'.format(host_name, work_dir_other))
 
+@print_description
+def create_bucket():
+    """Create new bucket to 1C"""
+
+    call('mkdir /out_files/workdir/artifacts/s3/files')
 
 @print_description
 def publish_sevises():
@@ -439,10 +444,11 @@ if new_server:
     delete_volumes()
 
 # start db srv ras web gate conteiners
-call(docker_compose_str + 'up -d db srv ras web gate', remote=False, silent=False)
+call(docker_compose_str + 'up -d db srv ras web gate s3', remote=False, silent=False)
 wait_postgres()
 
 if new_server:
+    create_bucket()
     publish_sevises()
     prepare_bases()
     enable_job_in_sm()
