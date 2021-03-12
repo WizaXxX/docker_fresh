@@ -21,6 +21,7 @@ docker_compose_str = 'docker-compose -f workdir/docker-compose.yml '
 work_dir = '/out_files/workdir/'
 work_dir_other = work_dir + 'mnt/other-files/'
 local_work_dir = helper.replace_sep(helper.this_path + 'workdir/')
+path_to_1c = ''
 
 
 class colors:
@@ -91,7 +92,7 @@ def print_description(function_to_decorate):
         task.join()
         progress_thread.stop()
     
-        while progress_thread.isAlive():
+        while progress_thread.is_alive():
             time.sleep(0.2)
 
         if not task.is_good: exit(1)
@@ -272,6 +273,7 @@ def renew_docker_compose():
 
     call('cp /out_files/docker-compose_pattern.yml /out_files/workdir/docker-compose.yml')
     call('sh -c "sed -i \'s/HOSTNAMEREPLACE/{}/\' {}/*.yml"'.format(host_name, work_dir))
+    call('sh -c "sed -i \'s/PATH_TO_1C_REPLACE/{}/\' {}/*.yml"'.format(path_to_1c.replace('/','\/'), work_dir))
 
 
 @print_description
@@ -425,6 +427,16 @@ def down_containers():
 
     call(docker_compose_str + 'down', remote=False)
 
+@print_description
+def get_path_to_1c():
+    """Getting path to 1C"""
+
+    global path_to_1c
+    cmd = "docker run --rm fresh/core sh -c \"find / -name '1cv8c' | sed 's/1cv8c//g'\""
+    pipe = subprocess.PIPE
+    p = subprocess.Popen(cmd, shell=True, stdin=pipe, stdout=pipe, stderr=pipe, close_fds=True)
+    path_to_1c = p.stdout.read().decode('utf-8').strip()
+    print('path to 1C: ' + path_to_1c)
 
 global_start_time = datetime.now()
 print('{}Fresh is starting{} at {}'.format(colors.GREEN, colors.WHITE, global_start_time))
@@ -434,6 +446,8 @@ new_server = '-new' in sys.argv
 global_debug = '-debug' in sys.argv
 
 set_full_host_name(new_server)
+get_path_to_1c()
+helper.init(path_to_1c)
 
 if new_server:
     renew_workdir()
