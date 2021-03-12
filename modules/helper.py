@@ -1,9 +1,11 @@
 import pathlib
 import os
 
+path_to_1c = ''
 sep = str(os.path.sep)
 this_path = str(pathlib.Path().absolute()) + sep
 distr_path = this_path + 'distr' + sep
+
 
 def replace_sep(path):
     return path.replace('/', sep)
@@ -35,7 +37,7 @@ def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''
     command.append('docker')
     command.append('exec')
     command.append('web.' + host_name)
-    command.append('/opt/1C/v8.3/x86_64/webinst')
+    command.append('{}webinst'.format(path_to_1c))
     command.append('-apache24')
     command.append('-wsdir')
     command.append(prefix + '/' + conf_name)
@@ -62,7 +64,7 @@ def create_ib_command(host_name, ib_name, file_name, job_block, action):
     command.append('exec')
     command.append('-t')
     command.append('srv.' + host_name)
-    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('{}1cv8'.format(path_to_1c))
     command.append('CREATEINFOBASE')
     command.append('"Srvr=srv;Ref={0};DBMS=PostgreSQL;DBSrvr=/tmp/postgresql/socket;DB={0};DBUID=postgres;LicDstr=Y;Locale=ru_RU;CrSQLDB=Y;SchJobDn={1};"'.format(
         ib_name, job_block))
@@ -77,7 +79,7 @@ def install_control_ext_command(host_name, ib_name, action):
     command.append('exec')
     command.append('-t')
     command.append('srv.' + host_name)
-    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('{}1cv8'.format(path_to_1c))
     command.append('DESIGNER')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
@@ -95,7 +97,7 @@ def install_sm_ext_command(host_name, ib_name, action):
     command.append('exec')
     command.append('-t')
     command.append('srv.' + host_name)
-    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('{}1cv8'.format(path_to_1c))
     command.append('DESIGNER')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
@@ -113,7 +115,7 @@ def install_ext_command(host_name, ib_name, action):
     command.append('exec')
     command.append('-t')
     command.append('srv.' + host_name)
-    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('{}1cv8'.format(path_to_1c))
     command.append('DESIGNER')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
@@ -131,7 +133,7 @@ def disable_safe_mode(host_name, ib_name, action):
     command.append('exec')
     command.append('-t')
     command.append('srv.' + host_name)
-    command.append('/opt/1C/v8.3/x86_64/1cv8')
+    command.append('{}1cv8'.format(path_to_1c))
     command.append('ENTERPRICE')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
@@ -234,3 +236,8 @@ def get_host_name(argv):
         exit(1)
     host_index = argv.index('-h')
     return argv[host_index + 1]
+
+
+def init(path):
+    global path_to_1c
+    path_to_1c = path

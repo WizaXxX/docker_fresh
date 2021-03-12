@@ -12,6 +12,8 @@ import time
 import uuid
 
 
+path_to_1c = ''
+
 # define regexps
 regex_process_pid = re.compile(r'/([^/.]+?)\.(\d+?)\.(\d+?)\.core')
 regex_offset = re.compile(r'#0\s+?([\dxa-f]+?)\s')
@@ -31,6 +33,10 @@ def run_shell(cmd):
     p = subprocess.Popen(cmd, shell=True, stdin=pipe, stdout=pipe, stderr=pipe, close_fds=True, cwd='/')
     return p.stdout.read(), p.stderr.read()
 
+def run_shell_get_stdout(cmd):
+    pipe = subprocess.PIPE
+    p = subprocess.Popen(cmd, shell=True, stdin=pipe, stdout=pipe, stderr=pipe, close_fds=True, cwd='/')
+    return p.stdout.read()
 
 def run_shell_get_result(cmd):
     result = subprocess.call(cmd, shell=True)
@@ -42,6 +48,14 @@ def check_size_static(core_file):
     time.sleep(5)
     size_2 = os.path.getsize(core_file)
     return size_1 == size_2
+
+def get_path_to_1c():
+    global path_to_1c
+    if path_to_1c == '':
+        result = run_shell_get_stdout("find / -name '1cv8c' | sed 's/1cv8c//g' | sed 's/\.\/opt/\/opt/g'")
+        path_to_1c = result.decode('utf-8').strip()
+    return path_to_1c
+
 
 # END helper functions--------------------------------------------------------------------------------------------------
 
@@ -58,7 +72,7 @@ def get_pid_process_ctime(core_file):
 
 def get_platform_offset(core_file, process):
     # run gdb for getting offset of core
-    cmd = 'echo -e "bt\nexit" | gdb /opt/1C/v8.3/x86_64/' + process + ' ' + core_file
+    cmd = 'echo -e "bt\nexit" | gdb ' + get_path_to_1c() + process + ' ' + core_file
     (gdb_result, gdb_error) = run_shell(cmd)
 
     if not gdb_result:
@@ -73,7 +87,7 @@ def get_platform_offset(core_file, process):
             offset = rez.groups()[0]
             offset = offset[6:-1]
         # getting platform version
-        cmd = 'strings /opt/1C/v8.3/x86_64/' + process + """ | grep -oP '[8-9]\.[3-90]\.\d\d?\.\d{2,4}' """
+        cmd = 'strings ' + get_path_to_1c() + process + """ | grep -oP '[8-9]\.[3-90]\.\d\d?\.\d{2,4}' """
         (ver_result, ver_error) = run_shell(cmd)
         if ver_result:
             platform = ver_result.strip()
@@ -105,7 +119,7 @@ def make_libs_tar(core_file, process):
     if os.path.exists(libs_file):
         os.remove(libs_file)
     cmd = """echo -e "info shared\nq" | """
-    cmd += """ gdb /opt/1C/v8.3/x86_64/""" + process + " " + core_file + """ 2>/dev/null | """
+    cmd += """ gdb """ + get_path_to_1c() + process + " " + core_file + """ 2>/dev/null | """
     cmd += """ grep 0x0000 | grep -v /opt/1C/v8.3 | grep -v ?? | perl -alne 'print $F[-1]' | """
     cmd += """ while read file; do tar --dereference --append -f """ + libs_file + """ $file  2> /dev/null ; done"""
     stdout, stderr = run_shell(cmd)
