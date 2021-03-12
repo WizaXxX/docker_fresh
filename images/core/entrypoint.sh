@@ -2,15 +2,17 @@
 
 set -e
 
+platform_path=$(find / -name "1cv8c" | sed 's/1cv8c//g' | sed 's/\.\/opt/\/opt/g')
+
 if [ "$1" = 'srv' ]
 then
     chown -R usr1cv8:grp1cv8 ${COREDATA} ${CORELOGS}
-    exec gosu usr1cv8 /opt/1C/v8.3/x86_64/ragent -debug -http /d ${COREDATA}
+    exec gosu usr1cv8 ${platform_path}ragent -debug -http /d ${COREDATA}
 elif [ "$1" = 'srv+cli' ]
 then
     ulimit -c unlimited
     chown -R usr1cv8:grp1cv8 ${COREDATA} ${CORELOGS}
-    exec gosu usr1cv8 /opt/1C/v8.3/x86_64/ragent -debug -http /d ${COREDATA} &
+    exec gosu usr1cv8 ${platform_path}ragent -debug -http /d ${COREDATA} &
     status=$?
     if [ $status -ne 0 ]; then
         echo "Failed to start ragent: $status"
@@ -37,7 +39,7 @@ then
 elif [ "$1" = 'ras' ]
 then
     chown -R usr1cv8:grp1cv8 ${CORELOGS}
-    exec gosu usr1cv8 /opt/1C/v8.3/x86_64/ras cluster
+    exec gosu usr1cv8 ${platform_path}ras cluster
 elif [ "$1" = 'cli' ]
 then
     chown -R usr1cv8:grp1cv8 ${CORELOGS}
@@ -54,7 +56,7 @@ elif [ "$1" = 'agent' ]
 then
     chown -R usr1cv8:grp1cv8 ${COREDATA} ${CORELOGS} ${AGENTBASEDIR}
     exec /usr/bin/Xvfb :99 -screen 0 1680x1050x24 -shmem &
-    exec /opt/1C/v8.3/x86_64/1cv8 DESIGNER /AgentMode /IBConnectionString "${INFOBASECONNECTIONSTRING}" /AgentBaseDir "${AGENTBASEDIR}" /AgentSSHHostKey "/id_rsa.key" /Visible /AgentListenAddress 0.0.0.0
+    exec ${platform_path}1cv8 DESIGNER /AgentMode /IBConnectionString "${INFOBASECONNECTIONSTRING}" /AgentBaseDir "${AGENTBASEDIR}" /AgentSSHHostKey "/id_rsa.key" /Visible /AgentListenAddress 0.0.0.0
 fi
 
 exec "$@"

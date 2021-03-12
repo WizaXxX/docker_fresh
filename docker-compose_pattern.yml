@@ -77,7 +77,7 @@ services:
       - ./mnt:/mnt
       - /tmp/.aksusb:/tmp/.aksusb
       - ../licenses_1c:/var/1C/licenses
-      - ../conf/core:/opt/1C/v8.3/x86_64/conf
+      - ../conf/core:PATH_TO_1C_REPLACEconf
       
     ports:
       - 1540-1541:1540-1541
@@ -92,11 +92,11 @@ services:
     image: fresh/core
     hostname: ras.HOSTNAMEREPLACE
     container_name: ras.HOSTNAMEREPLACE
-    command: /opt/1C/v8.3/x86_64/ras cluster --port=1545 srv:1540
+    command: PATH_TO_1C_REPLACEras cluster --port=1545 srv:1540
     volumes:
       - ./artifacts/ras/log:/var/log/1c
       - ./mnt:/mnt
-      - ../images/core/conf/logcfg.xml:/opt/1C/v8.3/x86_64/conf/logcfg.xml
+      - ../images/core/conf/logcfg.xml:PATH_TO_1C_REPLACEconf/logcfg.xml
     ports:
       - 1545:1545
       
