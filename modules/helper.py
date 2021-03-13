@@ -26,6 +26,16 @@ def new_docker_command(extra_path=None):
     command.append(current_distr_path + ':/out_files')
     return command
 
+def add_command_copy_file_from_mnt_to_tmp(commands, container_name, full_path, file_name):
+
+    commands.append('docker')
+    commands.append('exec')
+    commands.append(container_name)
+    commands.append('sh')
+    commands.append('-c')
+    commands.append('"cp {} /tmp/{}"'.format(full_path, file_name))
+    commands.append('&&')
+
 def web_publish_command(host_name, conf_name, internal, descriptor, base_name=''):
     
     if internal:
@@ -59,32 +69,42 @@ def get_out_file_name_command(action, ib_name):
     return '/Out "/mnt/{}_{}.out"'.format(action, ib_name)
 
 def create_ib_command(host_name, ib_name, file_name, job_block, action):
+    
+    full_path = '/mnt/{}'.format(file_name)
+    container_name = 'srv.{}'.format(host_name)
+    
     command = []
+    add_command_copy_file_from_mnt_to_tmp(command, container_name, full_path, file_name)
     command.append('docker')
     command.append('exec')
     command.append('-t')
-    command.append('srv.' + host_name)
+    command.append(container_name)
     command.append('{}1cv8'.format(path_to_1c))
     command.append('CREATEINFOBASE')
     command.append('"Srvr=srv;Ref={0};DBMS=PostgreSQL;DBSrvr=/tmp/postgresql/socket;DB={0};DBUID=postgres;LicDstr=Y;Locale=ru_RU;CrSQLDB=Y;SchJobDn={1};"'.format(
         ib_name, job_block))
     command.append('/UseTemplate')
-    command.append('/mnt/{}'.format(file_name))
+    command.append('/tmp/{}'.format(file_name))
     command.append(get_out_file_name_command(action, ib_name))
     return command
 
 def install_control_ext_command(host_name, ib_name, action):
+    
+    full_path = '/mnt/other-files/cfe/api_1cfresh.cfe'
+    container_name = 'srv.{}'.format(host_name)
+
     command = []
+    add_command_copy_file_from_mnt_to_tmp(command, container_name, full_path, 'api_1cfresh.cfe')
     command.append('docker')
     command.append('exec')
     command.append('-t')
-    command.append('srv.' + host_name)
+    command.append(container_name)
     command.append('{}1cv8'.format(path_to_1c))
     command.append('DESIGNER')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/LoadCfg')
-    command.append('"/mnt/other-files/cfe/api_1cfresh.cfe"')
+    command.append('"/tmp/api_1cfresh.cfe"')
     command.append('-Extension')
     command.append('"api_1cfresh"')
     command.append('/UpdateDBCfg')
@@ -92,17 +112,22 @@ def install_control_ext_command(host_name, ib_name, action):
     return command
 
 def install_sm_ext_command(host_name, ib_name, action):
+
+    full_path = '/mnt/other-files/cfe/УправлениеМС.cfe'
+    container_name = 'srv.{}'.format(host_name)
+
     command = []
+    add_command_copy_file_from_mnt_to_tmp(command, container_name, full_path, 'УправлениеМС.cfe')
     command.append('docker')
     command.append('exec')
     command.append('-t')
-    command.append('srv.' + host_name)
+    command.append(container_name)
     command.append('{}1cv8'.format(path_to_1c))
     command.append('DESIGNER')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/LoadCfg')
-    command.append('"/mnt/other-files/cfe/УправлениеМС.cfe"')
+    command.append('"/tmp/УправлениеМС.cfe"')
     command.append('-Extension')
     command.append('"УправлениеМС"')
     command.append('/UpdateDBCfg')
@@ -110,17 +135,23 @@ def install_sm_ext_command(host_name, ib_name, action):
     return command
 
 def install_ext_command(host_name, ib_name, action):
+
+    full_path = '/mnt/{}.cfe'.format(ib_name)
+    file_name = '{}.cfe'.format(ib_name)
+    container_name = 'srv.{}'.format(host_name)
+
     command = []
+    add_command_copy_file_from_mnt_to_tmp(command, container_name, full_path, file_name)
     command.append('docker')
     command.append('exec')
     command.append('-t')
-    command.append('srv.' + host_name)
+    command.append(container_name)
     command.append('{}1cv8'.format(path_to_1c))
     command.append('DESIGNER')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/LoadCfg')
-    command.append('"/mnt/{}.cfe"'.format(ib_name))
+    command.append('"/tmp/{}"'.format(file_name))
     command.append('-Extension')
     command.append('"fresh"')
     command.append('/UpdateDBCfg')
@@ -128,17 +159,22 @@ def install_ext_command(host_name, ib_name, action):
     return command
 
 def disable_safe_mode(host_name, ib_name, action):
+    
+    full_path = '/mnt/other-files/cfe/disable.epf'
+    container_name = 'srv.{}'.format(host_name)
+    
     command = []
+    add_command_copy_file_from_mnt_to_tmp(command, container_name, full_path, 'disable.epf')
     command.append('docker')
     command.append('exec')
     command.append('-t')
-    command.append('srv.' + host_name)
+    command.append(container_name)
     command.append('{}1cv8'.format(path_to_1c))
     command.append('ENTERPRICE')
     command.append('/S')
     command.append('"srv\\{}"'.format(ib_name))
     command.append('/Execute')
-    command.append('"/mnt/other-files/cfe/disable.epf"')
+    command.append('"/tmp/disable.epf"')
     command.append(get_out_file_name_command(action, ib_name))
     return command
 

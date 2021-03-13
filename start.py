@@ -212,6 +212,7 @@ def delete_volumes():
 
     call('docker volume rm workdir_1c_pg_data', remote=False)
     call('docker volume rm workdir_1c_pg_socket', remote=False)
+    call('docker volume rm workdir_1c_server_data', remote=False)
 
 @print_description
 def prepare_bases():
@@ -229,6 +230,8 @@ def prepare_bases():
             conf_file_name=ib_data[ib_prop.conf_file],
             job_block=ib_data[ib_prop.job]
         )
+        if ib_data[ib_prop.job]:
+            enable_job(ib_data[ib_prop.name], ib_data[ib_prop.adm])
     
     # prepare sm base 
     prepare_new_ib(
@@ -236,7 +239,9 @@ def prepare_bases():
             int_name=sm_ib[ib_prop.int_name],
             conf_file_name=sm_ib[ib_prop.conf_file],
             job_block=sm_ib[ib_prop.job]
-        )    
+        )
+    if ib_prop.job:
+            enable_job(ib_data[ib_prop.name], ib_data[ib_prop.adm])    
 
 @print_description
 def renew_nginx_files():
@@ -413,12 +418,9 @@ def wait_site():
 
     call('docker exec -t site.{} /wait_site.sh'.format(host_name), remote=False)
 
+def enable_job(base_name, user):
 
-@print_description
-def enable_job_in_sm():
-    """Enable scheduled jobs sm"""
-
-    call('docker exec -t ras.{} deployka scheduledjobs unlock -db sm -db-user "Администратор"'.format(host_name),
+    call('docker exec -t ras.{} deployka scheduledjobs unlock -db {} -db-user "{}"'.format(host_name, base_name, user),
         remote=False)
 
 @print_description
@@ -465,7 +467,6 @@ if new_server:
     create_bucket()
     publish_sevises()
     prepare_bases()
-    enable_job_in_sm()
     create_db_site()
     create_db_forum()
 
