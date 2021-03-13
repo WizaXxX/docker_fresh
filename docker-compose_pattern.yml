@@ -72,7 +72,7 @@ services:
     command: srv+cli
     volumes:
       - 1c_pg_socket:/tmp/postgresql/socket
-      - ./artifacts/srv/data:/var/lib/1c/data
+      - 1c_server_data:/var/lib/1c/data
       - ./artifacts/srv/log:/var/log/1c
       - ./mnt:/mnt
       - /tmp/.aksusb:/tmp/.aksusb
@@ -155,3 +155,4 @@ services:
 volumes: 
   1c_pg_data:
   1c_pg_socket:
+  1c_server_data:
