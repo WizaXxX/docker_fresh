@@ -20,7 +20,7 @@ RUN set -ex; \
 # russian locale
     localedef -f UTF-8 -i ru_RU ru_RU.UTF-8; \
 # ImageMagick & httpd & xorg-x11-server-Xvf
-    yum -y --setopt=tsflags=nodocs install ImageMagick httpd which xorg-x11-xauth dbus-x11 xorg-x11-server-Xvfb cifs-utils; \
+    yum -y --setopt=tsflags=nodocs install ImageMagick httpd which xorg-x11-xauth dbus-x11 xorg-x11-server-Xvfb cifs-utils ca-certificates update-ca-trust; \
     dbus-uuidgen > /var/lib/dbus/machine-id; \
 	yum clean all
 
