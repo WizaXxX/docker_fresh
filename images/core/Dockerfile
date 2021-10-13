@@ -15,7 +15,7 @@ RUN yum -y localinstall /tmp/core/*.rpm; \
     cert-sync /etc/pki/tls/certs/ca-bundle.crt; \
     oscript /usr/share/oscript/lib/opm/src/cmd/opm.os install deployka; \
     chmod +x /usr/bin/deployka; \
-    chmod +x /tmp/license-tools/1ce-installer-cli; /tmp/license-tools/1ce-installer-cli install
+    chmod +x /tmp/license-tools/1ce-installer-cli; /tmp/license-tools/1ce-installer-cli install --ignore-signature-warnings
 
 ENV COREDATA /var/lib/1c/data
 ENV CORELOGS /var/log/1c
