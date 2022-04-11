@@ -18,9 +18,10 @@ then
         echo "Failed to start ragent: $status"
         exit $status
     fi
+    rm -rf /tmp/.X99-lock
     exec /usr/bin/Xvfb :99 -screen 0 1680x1050x24 -shmem &
-    exec metacity --display=:99 &
-    exec /usr/bin/x11vnc &
+    sleep 5 &&
+    exec /usr/bin/x11vnc -display :99 -forever &
     status=$?
     if [ $status -ne 0 ]; then
         echo "Failed to start Xvfb: $status"
@@ -44,8 +45,7 @@ elif [ "$1" = 'cli' ]
 then
     chown -R usr1cv8:grp1cv8 ${CORELOGS}
     exec /usr/bin/Xvfb :99 -screen 0 1680x1050x24 -shmem &
-    exec metacity --display=:99 &
-    exec /usr/bin/x11vnc    
+    exec /usr/bin/x11vnc -display :99 -forever 
 elif [ "$1" = 'web' ]
 then
     chown -R usr1cv8:grp1cv8 ${CORELOGS}
