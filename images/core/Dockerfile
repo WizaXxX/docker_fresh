@@ -11,7 +11,7 @@ RUN yum -y localinstall /tmp/core/*.rpm; \
     yum -y install x11vnc metacity net-tools gdb perl tar git jq; \
     yum -y install https://centos7.iuscommunity.org/ius-release.rpm; \
     yum -y --setopt=tsflags=nodocs install python36u python36u-devel python36u-pip; \
-    yum -y install java-1.8.0-openjdk; \
+    yum -y install java-1.8.0-openjdk iproute; \
     cert-sync /etc/pki/tls/certs/ca-bundle.crt; \
     oscript /usr/share/oscript/lib/opm/src/cmd/opm.os install deployka; \
     chmod +x /usr/bin/deployka; \
