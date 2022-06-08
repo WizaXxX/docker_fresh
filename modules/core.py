@@ -9,20 +9,23 @@ def download_onescript():
     command.append('https://oscript.io/downloads/1_4_0/x64/onescript-engine-1.4.0-1.fc26.noarch.rpm')
     return command
 
-def unzip_platform_distr():
+def unzip_platform_distr(is_new_path_to_platform):
     command = helper.new_docker_command()
     command.append('-v')
     command.append(helper.this_path + helper.replace_sep('images/core') + ':/main_dir')
     command.append('alpine')
     command.append('sh')
-    command.append('/main_dir/get_platform.sh')
+    if is_new_path_to_platform:
+        command.append('/main_dir/get_platform_from_20_ver.sh')
+    else:
+        command.append('/main_dir/get_platform_to_19_ver.sh')
     return command
 
 
-def add_all_before_commands():
+def add_all_before_commands(is_new_path_to_platform):
     commands = []
     commands.append(download_onescript())
-    commands.append(unzip_platform_distr())
+    commands.append(unzip_platform_distr(is_new_path_to_platform))
     return commands
 
 def delete_core_distr_files():
@@ -49,7 +52,7 @@ class New():
     commands_before = []
     commands_after = []
 
-    def __init__(self):
+    def __init__(self, is_new_path_to_platform):
         self.name = 'core'
-        self.commands_before = add_all_before_commands()
+        self.commands_before = add_all_before_commands(is_new_path_to_platform)
         self.commands_after = add_all_after_commands()
